@@ -1,5 +1,5 @@
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
@@ -7,6 +7,59 @@ import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
+
+
+export default function LocalPicViewer({ filePath }: { filePath: string }) {
+  const [base64, setBase64] = useState('');
+  useEffect(() => {
+    if ((window as any).electronAPI?.readImageAsBase64) {
+      const content = (window as any).electronAPI.readImageAsBase64(filePath);
+      setBase64(content);
+    }
+  }, [filePath]);
+
+  return base64 ? (
+    <a href={base64} target="_blank" rel="noopener noreferrer">
+      <img src={base64} style={{cursor:'pointer'}} />
+    </a>
+  ) : <p>图片加载失败</p>;
+}
+
+
+// export default function LocalSvgViewer({ filePath }: { filePath: string }) {
+//   const [svgContent, setSvgContent] = useState('');
+
+//   useEffect(() => {
+//     if ((window as any).electronAPI?.loadSvgContent) {
+//       const content = (window as any).electronAPI.loadSvgContent(filePath);
+//       setSvgContent(content);
+//     }
+//   }, [filePath]);
+
+//   const handleOpenExternally = () => {
+//     if ((window as any).electronAPI?.openFileExternally) {
+//       (window as any).electronAPI.openFileExternally(filePath);
+//     }
+//   };
+
+//   return (
+//     <div className="flex flex-col items-center p-4">
+//       <div
+//         className="border rounded p-2"
+//         style={{ maxHeight: '500px', overflow: 'auto' }}
+//         dangerouslySetInnerHTML={{ __html: svgContent }}
+//       />
+//       <button
+//         onClick={handleOpenExternally}
+//         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+//       >
+//         点击在新窗口中打开 📈
+//       </button>
+//     </div>
+//   );
+// }
+
+
 
 export function ToolCalls({
   toolCalls,
@@ -175,17 +228,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                 >
                   {isImage ? (
                     <div className="flex justify-center">
-                      <a 
-                        href={`file:///${typeof message.content === 'string' ? message.content.replace(/\\/g, '/') : ''}`}
-                        target="_blank"
-                      >
-                        <img 
-                          src={`file:///${typeof message.content === 'string' ? message.content.replace(/\\/g, '/') : ''}`}
-                          alt="Generated figure"
-                          className="max-w-full h-auto cursor-pointer rounded border"
-                          style={{ maxHeight: '500px' }}
-                        />
-                      </a>
+                      <LocalPicViewer filePath={String(message.content)} />
                     </div>
                   ) : (
                     isJsonContent ? (
