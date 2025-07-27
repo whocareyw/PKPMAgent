@@ -9,19 +9,27 @@ function isComplexValue(value: any): boolean {
 }
 
 
-export default function LocalPicViewer({ filePath }: { filePath: string }) {
-  const [base64, setBase64] = useState('');
-  useEffect(() => {
-    if ((window as any).electronAPI?.readImageAsBase64) {
-      const content = (window as any).electronAPI.readImageAsBase64(filePath);
-      setBase64(content);
-    }
-  }, [filePath]);
-
+export default function PicViewer({ base64 }: { base64: string }) {
   return base64 ? (
-    <a href={base64} target="_blank" rel="noopener noreferrer">
-      <img src={base64} style={{cursor:'pointer'}} />
-    </a>
+    <img
+  src={base64}
+  style={{ cursor: 'pointer' }}
+  onClick={() => {
+    const win = window.open();
+    if (win) {
+      const doc = win.document;
+      doc.title = 'SVG Image';
+
+      const img = doc.createElement('img');
+      img.src = base64;
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+
+      doc.body.style.margin = '0';
+      doc.body.appendChild(img);
+    }
+  }}
+/>
   ) : <p>图片加载失败</p>;
 }
 
@@ -228,7 +236,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                 >
                   {isImage ? (
                     <div className="flex justify-center">
-                      <LocalPicViewer filePath={String(message.content)} />
+                     <PicViewer base64={String(message.artifact)} />
                     </div>
                   ) : (
                     isJsonContent ? (
