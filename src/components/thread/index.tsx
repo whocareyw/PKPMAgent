@@ -323,7 +323,7 @@ export function Thread() {
                 )}
               </div>
               <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
+                {/* <OpenGitHubRepo /> */}
               </div>
             </div>
           )}
@@ -358,28 +358,29 @@ export function Thread() {
                   }}
                 >
                   <LangGraphLogoSVG
-                    width={32}
-                    height={32}
+                    width={48}
+                    height={48}
                   />
                   <span className="text-xl font-semibold tracking-tight">
                     Agent
                   </span>
                 </motion.button>
-              </div>
-
-              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
+                
                 <div className="flex items-center">
-                  <OpenGitHubRepo />
+                  {/* <OpenGitHubRepo /> */}
+                  {/* //开启新对话 */}
                 </div>
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
-                  tooltip="New thread"
+                  tooltip="Start New Chat"
                   variant="ghost"
                   onClick={() => setThreadId(null)}
                 >
-                  <SquarePen className="size-5" />
+                  <SquarePen className="size-6" />
                 </TooltipIconButton>
+              </div>
               </div>
 
               <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />
@@ -496,7 +497,7 @@ export function Thread() {
                             </Label>
                           </div>
                         </div>
-                        <Label
+                        {/* <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
                         >
@@ -512,7 +513,7 @@ export function Thread() {
                           multiple
                           accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
                           className="hidden"
-                        />
+                        /> */}
                         {stream.isLoading ? (
                           <Button
                             key="stop"
