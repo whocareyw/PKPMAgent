@@ -76,8 +76,8 @@ export function ToolCalls({
   toolCalls: AIMessage["tool_calls"];
   isTempToolCall?: boolean; //默认是false
 }) {
-  const [isExpanded, setIsExpanded] = useState(isTempToolCall);
-  if (!toolCalls || toolCalls.length === 0) return null;
+  const [isExpanded, setIsExpanded] = useState(isTempToolCall); 
+  if (!toolCalls || toolCalls.length === 0) return null;  
 
   return (
     <div className="w-fit h-full grid grid-rows-[1fr_auto] gap-0">
