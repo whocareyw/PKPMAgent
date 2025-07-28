@@ -71,11 +71,12 @@ export default function PicViewer({ base64 }: { base64: string }) {
 
 export function ToolCalls({
   toolCalls,
+  isTempToolCall = false,
 }: {
   toolCalls: AIMessage["tool_calls"];
+  isTempToolCall?: boolean; //默认是false
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  
+  const [isExpanded, setIsExpanded] = useState(isTempToolCall);
   if (!toolCalls || toolCalls.length === 0) return null;
 
   return (
@@ -135,7 +136,7 @@ export function ToolCalls({
                                       {JSON.stringify(value, null, 2)}
                                     </code>
                                   ) : (
-                                    <SyntaxHighlighter language="python" className="text-sm">
+                                    <SyntaxHighlighter language="python" className="text-sm"  wrapLongLines={true} >
                                       {String(value)}
                                     </SyntaxHighlighter>                         
                                   )}

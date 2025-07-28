@@ -132,7 +132,27 @@ export function AssistantMessage({
     hasToolCalls &&
     message.tool_calls?.some(
       (tc) => tc.args && Object.keys(tc.args).length > 0,
-    );
+    );    
+  const isTempToolCall = !toolCallsHaveContents && 
+      message && 
+      'tool_calls' in message && 
+      message.tool_calls && 
+      message.additional_kwargs?.tool_calls;  
+  if (isTempToolCall) {
+    message.tool_calls = (message.tool_calls || []).map((tc, index) => {
+      const additionalTc = message.additional_kwargs?.tool_calls && Array.isArray(message.additional_kwargs.tool_calls) ? message.additional_kwargs.tool_calls[index] : undefined;
+      if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
+        return {
+          ...tc,
+          args: {
+            Info: additionalTc.function.arguments
+          }
+        };
+      }
+      return tc;
+    });
+  }
+
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
 
@@ -168,8 +188,8 @@ export function AssistantMessage({
                   (hasAnthropicToolCalls && (
                     <ToolCalls toolCalls={anthropicStreamedToolCalls} />
                   )) ||
-                  (hasToolCalls && (
-                    <ToolCalls toolCalls={message.tool_calls} />
+                  (hasToolCalls &&(
+                    <ToolCalls toolCalls={message.tool_calls} isTempToolCall={Boolean(isTempToolCall)} />
                   ))}
               </>
             )}

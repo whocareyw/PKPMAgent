@@ -15,12 +15,14 @@ interface SyntaxHighlighterProps {
   children: string;
   language: string;
   className?: string;
+  wrapLongLines?: boolean;
 }
 
 export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   children,
   language,
   className,
+  wrapLongLines,
 }) => {
   return (
     <SyntaxHighlighterPrism
@@ -34,6 +36,13 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         //padding: "1.5rem 1rem",
       }}
       className={className}
+      wrapLongLines={wrapLongLines}
+      codeTagProps={{
+        style: {
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+        }
+      }}
     >
       {children}
     </SyntaxHighlighterPrism>
