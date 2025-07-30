@@ -46,6 +46,7 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
+import { ModelSelect } from "./agent-inbox/components/model-select";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -125,7 +126,7 @@ export function Thread() {
     "hideToolCalls",
     parseAsBoolean.withDefault(false),
   );
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("");  
   const {
     contentBlocks,
     setContentBlocks,
@@ -481,9 +482,15 @@ export function Thread() {
                         className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
-                      <div className="flex items-center gap-6 p-2 pt-4">
+                      <div className="flex items-center gap-6 p-2 pt-0">
                         <div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1">                         
+
+                            <ModelSelect 
+                              selectedModel={"DeepSeek-V3-0324"}
+                            />
+
+                            {/* 是否隐藏工具调用 */}
                             <Switch
                               id="render-tool-calls"
                               checked={hideToolCalls ?? false}
@@ -491,12 +498,15 @@ export function Thread() {
                             />
                             <Label
                               htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600"
+                              className="text-sm font-semibold text-gray-600"
                             >
-                              Hide Tool Calls
+                              Hide Tool 
                             </Label>
+                            
                           </div>
                         </div>
+                        
+
                         {/* <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
