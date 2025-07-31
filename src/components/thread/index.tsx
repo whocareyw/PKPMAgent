@@ -484,12 +484,9 @@ export function Thread() {
 
                       <div className="flex items-center gap-6 p-2 pt-0">
                         <div>
-                          <div className="flex items-center space-x-1">                         
+                          <div className="flex items-center space-x-1">                        
 
-                            <ModelSelect 
-                              selectedModel={"DeepSeek-V3-0324"}
-                            />
-
+                            <ModelSelect />
                             {/* 是否隐藏工具调用 */}
                             <Switch
                               id="render-tool-calls"

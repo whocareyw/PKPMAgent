@@ -1,44 +1,129 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown, X } from "lucide-react";
 
-const defaultModels: Model[] = [
-  { id: "DeepSeek-V3-0324", Url: "https://api.deepseek.com"                            },
-  { id: "Qwen3",            Url: "https://dashscope.aliyuncs.com/compatible-mode/v1/", },
-  { id: "Kimi-K2",          Url: "https://api.moonshot.cn"                             },
-  { id: "Gemini-2.5-Flash", Url: "https://generativelanguage.googleapis.com"           },
-  { id: "Claude-4-Sonnet",  Url: "https://api.anthropic.com/"                          }
-];
+import { ModelConfig, getModelConfig, setModelConfig } from '@/lib/model-config-api';
 
 interface Model {
-  id: string;
-  Url: string;
+  name: string;
+  ID: string;
+  url: string;  
+  api_key: string;
+  api_keys_url: string;
+  ID_url: string;  
 }
 
 interface ModelSelectProps {
-  selectedModel?: string;
-  onModelChange?: (modelId: string) => void;
-  availableModels?: Model[];
+  selectedModel?: Model;
+  onModelChange?: (model: Model) => void;
   className?: string;
 }
 
 export function ModelSelect({ 
-  selectedModel: externalSelectedModel,
+//   selectedModel: externalSelectedModel,
   onModelChange,
-  availableModels = defaultModels,
   className = ""
-}: ModelSelectProps) {
-  const defaultSelectedModel = "DeepSeek-V3-0324";
-  const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
-  const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('down');
-  const [configDialogOpen, setConfigDialogOpen] = useState(false);
-  const [configModelId, setConfigModelId] = useState<string>("");
-  const modelDropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const configRef = useRef<HTMLDivElement>(null);
+}: ModelSelectProps) {    
+    const [availableModels, setAvailableModels] = useState<Model[]>([
+        { name: "DeepSeek", 
+            ID: "deepseek-chat",
+            url: "https://api.deepseek.com"                        , 
+            api_key: '',
+            api_keys_url: "https://platform.deepseek.com/api_keys" , 
+            ID_url: "https://api-docs.deepseek.com/zh-cn/" },
+        { name: "Qwen",                
+            ID: "qwen3-235b-a22b-instruct-2507",
+            url: "https://dashscope.aliyuncs.com/compatible-mode/v1/", 
+            api_key: '',
+            api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
+            ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u" },
+        { name: "Kimi",                           
+            ID: "kimi-k2-0711-preview",
+            url: "https://api.moonshot.cn/v1"                           , 
+            api_key: '',
+            api_keys_url: "https://platform.moonshot.cn/console/api-keys" ,
+            ID_url: "https://platform.moonshot.cn/docs/introduction" },
+        { name: "Gemini",                  
+            ID: "gemini-2.5-flash",
+            url: "https://generativelanguage.googleapis.com/v1beta/openai/" , 
+            api_key: '',
+            api_keys_url: "https://aistudio.google.com/app/apikey" ,
+            ID_url: "https://ai.google.dev/gemini-api/docs/models?hl=zh-cn" },
+        { name: "GPT",                   
+            ID: "gpt-4.1",
+            url: "https://api.openai.com"                        , 
+            api_key: '',
+            api_keys_url: "https://platform.openai.com/api-keys" ,
+            ID_url: "https://platform.openai.com/docs/models" },
+        ]);    
+    // 从本地存储获取模型配置
+    useEffect(() => {
+        handleGetModelConfig();
+    }, []);
+    useEffect(() => {
+        handleSetModelConfig();
+    }, [availableModels]);
+    
+    const defaultSelectedModel = availableModels[0];
+    const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
+    const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('down');
+    const [configDialogOpen, setConfigDialogOpen] = useState(false);
+
+    const [configModel, setConfigModel] = useState<Model>(defaultSelectedModel);
+    useEffect(() => {
+       //把configModel赋值给defaultModels 中对应的模型，用setAvailableModels更新
+       const model = availableModels.find((m) => m.ID === configModel.ID);
+       if (model) {
+        model.api_key = configModel.api_key;
+        setAvailableModels([...availableModels]);
+       }     
+    }, [configModel]);
+
+    const modelDropdownRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const configRef = useRef<HTMLDivElement>(null);
+      
+    // 获取模型配置（如果本地有配置会返回本地的，没有的话会保存传入的配置）
+    const handleGetModelConfig = async () => {
+         // availableModels 转成 ModelConfig 类型的数组
+        const configModels = availableModels.map((model) => ({
+            name: model.name,
+            id: model.ID, // 注意：Model.ID 映射到 ModelConfig.id
+            url: model.url,
+            api_key: model.api_key,
+        }));
+        const result = await getModelConfig(configModels);
+        if (result.data) {
+           //遍历result.data，给availableModels中的每个模型添加api_key
+            result.data.forEach((config) => {
+                const model = availableModels.find((m) => m.ID === config.id);
+                if (model) {
+                    model.api_key = config.api_key;
+                }
+            });                        
+        } else if (result.error) {
+            console.error('获取模型配置失败:', result.error);
+        }        
+    };
+    // 保存模型配置
+    const handleSetModelConfig = async () => {
+        const configModels = availableModels.map((model) => ({
+            name: model.name,
+            id: model.ID, // 注意：Model.ID 映射到 ModelConfig.id
+            url: model.url,
+            api_key: model.api_key,
+        }));
+        const result = await setModelConfig(configModels);
+        if (result.data) {
+            console.log('保存模型配置成功:', result.data);
+        } else if (result.error) {
+            console.error('保存模型配置失败:', result.error);
+        }
+    };
+
 
   // 使用外部传入的selectedModel或内部状态
-  const [selectedModel, setSelectedModel] = useState(externalSelectedModel ?? defaultSelectedModel);
+  const [selectedModel, setSelectedModel] = useState(defaultSelectedModel);
 
   // 计算下拉菜单展开方向
   const calculateDropdownDirection = () => {
@@ -58,21 +143,21 @@ export function ModelSelect({
     return 'down';
   };
 
-  
-  const handleModelSelect = (modelId: string) => {
+  // 模型变化时触发
+  const handleModelSelect = (model: Model) => {
     if (onModelChange) {
-      onModelChange(modelId);
+      onModelChange(model);
     } 
-    setSelectedModel(modelId);    
+    setSelectedModel(model);    
     setModelDropdownOpen(false);
   };
 
-  const handleConfigClick = (modelId: string, event: React.MouseEvent) => {
+  const handleConfigClick = (model: Model, event: React.MouseEvent) => {
     event.stopPropagation();
-    console.log('Config button clicked for model:', modelId);
-    setConfigModelId(modelId);
+    // console.log('Config button clicked for model:', model.name);
+    setConfigModel(model);
     setConfigDialogOpen(!configDialogOpen);
-    console.log('Config dialog should be open:', true, 'for model:', modelId);
+    // console.log('Config dialog should be open:', true, 'for model:', model.name);
   };
 
   const toggleDropdown = () => {
@@ -96,16 +181,21 @@ export function ModelSelect({
           whileHover={{ scale: 1 }}
           whileTap={{ scale: 1 }}
         >
-          <span className="text-sm font-semibold text-gray-600">
-            {availableModels.find(m => m.id === selectedModel)?.id || "选择模型"}
-          </span>
-          <div className="w-4 h-4">
-            {modelDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
+            <div className="flex flex-col space-y-0 items-start">
+                <span className="text-sm font-semibold text-gray-600">
+                    {availableModels.find(m => m === selectedModel)?.name || "选择模型"}
+                </span>            
+                <span className="text-xs font-normal text-gray-400">
+                    {availableModels.find(m => m === selectedModel)?.ID || "模型ID"}
+                </span>
+            </div>
+            <div className="w-4 h-4">
+                {modelDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
         </motion.button>
       </div>
 
-      <AnimatePresence>
+      <AnimatePresence key="dropdown">
         {modelDropdownOpen && (
           <motion.div
             className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-55 overflow-hidden rounded-lg border border-gray-200 bg-white`}
@@ -124,20 +214,20 @@ export function ModelSelect({
           >
             <div className="py-1">
               {availableModels.map((model) => (
-                <div key={model.id} className="flex items-center group relative">
+                <div key={model.name} className="flex items-center group relative">
                   <motion.button
                     type="button"
-                    onClick={() => handleModelSelect(model.id)}
+                    onClick={() => handleModelSelect(model)}
                     className={`flex-1 px-4 py-2 text-left text-sm transition-colors hover:bg-gray-200 ${
-                      selectedModel === model.id ? 'text-black font-bold' : 'text-gray-600'
+                      selectedModel.name === model.name ? 'text-black font-bold' : 'text-gray-600'
                     }`}
                     whileHover={{ backgroundColor: '#f3f4f6' }}
                   >
-                    {model.id}
+                    {model.name}
                   </motion.button>
                   <motion.button
                     type="button"
-                    onClick={(e) => handleConfigClick(model.id, e)}
+                    onClick={(e) => handleConfigClick(model, e)}
                     className="px-2 py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -151,9 +241,10 @@ export function ModelSelect({
             </div>
           </motion.div>
         )}
+    
 
         {/* 配置对话框 - 模态对话框 */}
-        <AnimatePresence>
+        <AnimatePresence key="config-dialog">
         {configDialogOpen && (
             <motion.div
                 className="fixed inset-0 flex items-center justify-center"
@@ -180,17 +271,42 @@ export function ModelSelect({
             <div className="p-3 space-y-2">
                  <div>
                     <label className="p-1 block text-bold font-bold text-gray-700 mb-2">
-                        {configModelId}                       
+                        {configModel.name}          
                     </label>     
-                </div>    
+                </div>  
+
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <label className="block text-sm font-sm text-gray-700">
+                            * 模型 ID                         
+                        </label> 
+                        <a 
+                            href={configModel.ID_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-500 hover:text-blue-800 underline"
+                        >
+                            查询可选的模型ID       
+                        </a>
+                    </div>                             
+                    <input
+                        type="text"
+                        value={configModel.ID}
+                        onChange={(e) => setConfigModel({...configModel, ID: e.target.value})}
+                        placeholder="输入模型 ID "
+                        className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                </div> 
+                
                 <div>
                     <label className="block text-sm font-sm text-gray-700 mb-2">
                         * API 地址 (默认为官方地址，也可填入 硅基流动 等第三方服务商)                        
                     </label>            
                     <input
                         type="text"
-                        defaultValue={availableModels.find(m => m.id === configModelId)?.Url}
-                        placeholder="输入 API 地址（如：）"
+                        value={configModel.url}
+                        onChange={(e) => setConfigModel({...configModel, url: e.target.value})}
+                        placeholder="输入 API 地址"
                         className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                 </div>                           
@@ -201,7 +317,7 @@ export function ModelSelect({
                             * API 密钥
                         </label>
                         <a 
-                            href="https://platform.openai.com/api-keys" 
+                            href={configModel.api_keys_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-sm text-blue-500 hover:text-blue-800 underline"
@@ -210,7 +326,9 @@ export function ModelSelect({
                         </a>
                     </div>
                     <input
-                        type="password"
+                        type="text"
+                        value={configModel.api_key}
+                        onChange={(e) => setConfigModel({...configModel, api_key: e.target.value})}
                         placeholder="输入 API 密钥"
                         className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
