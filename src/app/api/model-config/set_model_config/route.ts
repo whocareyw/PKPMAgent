@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     
     // 验证每个模型配置对象的必需字段
     for (const model of body) {
-      if (!model.name || !model.id || !model.url || !model.api_key) {
+      if (!model.name || !model.id || !model.url || model.api_key === undefined || model.api_key === null) {
         return NextResponse.json(
           { error: 'Each model config must have name, id, url, and api_key fields' },
           { status: 400 }
