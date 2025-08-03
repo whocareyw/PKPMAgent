@@ -40,7 +40,7 @@ export function ModelSelect({
           ID_url: "https://platform.moonshot.cn/docs/introduction" },
       { name: "Gemini",                  
           id: "gemini-2.5-flash",
-          url: "https://generativelanguage.googleapis.com/v1beta/openai/" , 
+          url: "https://generativelanguage.googleapis.com/v1beta/openai" , 
           api_key: '',
           api_keys_url: "https://aistudio.google.com/app/apikey" ,
           ID_url: "https://ai.google.dev/gemini-api/docs/models?hl=zh-cn" },
