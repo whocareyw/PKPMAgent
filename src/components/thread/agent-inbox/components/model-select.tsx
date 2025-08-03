@@ -19,7 +19,7 @@ export function ModelSelect({
   onModelChange,
   className = ""
 }: ModelSelectProps) {    
-  let [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([
+  const [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([
       { name: "DeepSeek", 
           id: "deepseek-chat",
           url: "https://api.deepseek.com"                        , 
@@ -65,6 +65,7 @@ export function ModelSelect({
               }
           });    
           setAvailableModels([...availableModels]);
+          console.error('获取模型配置成功:', result);
       } else if (result.error) {
           console.error('获取模型配置失败:', result.error);
       }        
@@ -78,28 +79,32 @@ export function ModelSelect({
           console.error('保存模型配置失败:', result.error);
       }
   }; 
-  // 从本地存储获取模型配置   
+  // 在组件初次加载时获取模型配置
   useEffect(() => {
     getModelConfigFromLocal();
   }, []);
-  useEffect(() => {
-    setSelectedModel(availableModels[SelectedModelNo]);
-  }, [availableModels]);
-          
+            
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('down');
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
-
-  let SelectedModelNo = 0; // 选中的模型索引
-  const [selectedModel, setSelectedModel] = useState(availableModels[SelectedModelNo]);
-  const [editingModel, setEditingModel] = useState<ModelConfigEx>(availableModels[SelectedModelNo]);
+  
+  const [selectedModel, setSelectedModel] = useState(availableModels[0]);
+  const [editingModel, setEditingModel] = useState(availableModels[0]);
   const handleFinishEditModel = () => {
     const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
     if (modelIndex !== -1) {
       availableModels[modelIndex] = editingModel;
+      setAvailableModels([...availableModels]);
       setModelConfigToLocal();
     }     
   };
+  // availableModels改了，需要更新selectedModel
+  useEffect(() => {
+    const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
+    if (modelIndex !== -1) {
+      setSelectedModel(availableModels[modelIndex]);
+    }    
+  }, [availableModels]);
 
   const modelDropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
