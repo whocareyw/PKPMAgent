@@ -28,7 +28,7 @@ export function ModelSelect({
           ID_url: "https://api-docs.deepseek.com/zh-cn/" },
       { name: "Qwen",                
           id: "qwen3-235b-a22b-instruct-2507",
-          url: "https://dashscope.aliyuncs.com/compatible-mode/v1/", 
+          url: "https://dashscope.aliyuncs.com/compatible-mode/v1", 
           api_key: '',
           api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
           ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u" },
