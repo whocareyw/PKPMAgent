@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown, X } from "lucide-react";
 
-import { ModelConfig, getModelConfig, setModelConfig } from '@/lib/model-config-api';
+import { ModelConfig, getModelConfig, setModelConfig, getCurrentModel, setCurrentModel, checkModelConnectivity } from '@/lib/model-config-api';
 
 
 interface ModelConfigEx extends ModelConfig {
@@ -53,7 +53,7 @@ export function ModelSelect({
       ]);   
   // 获取模型配置（如果本地有配置会返回本地的，没有的话会保存传入的配置）
   const getModelConfigFromLocal = async () => {        
-      const result = await getModelConfig(availableModels);
+      const result = await getModelConfig(availableModels);     
       if (result.data) {
         //遍历result.data，给availableModels中的每个模型添加api_key
           result.data.forEach((config) => {
@@ -64,6 +64,14 @@ export function ModelSelect({
                   availableModels[modelIndex].url = config.url;
               }
           });    
+           // 获取当前模型
+          const resultCurrentModel = await getCurrentModel();
+          if (resultCurrentModel.data) {
+            if(resultCurrentModel.data.current_model){
+              const model = availableModels.find((m) => m.name === resultCurrentModel.data?.current_model);
+              model && setSelectedModel(model);
+            }
+          }
           setAvailableModels([...availableModels]);
           console.error('获取模型配置成功:', result);
       } else if (result.error) {
@@ -90,21 +98,42 @@ export function ModelSelect({
   
   const [selectedModel, setSelectedModel] = useState(availableModels[0]);
   const [editingModel, setEditingModel] = useState(availableModels[0]);
+  const [connectivityStatus, setConnectivityStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
   const handleFinishEditModel = () => {
     const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
     if (modelIndex !== -1) {
       availableModels[modelIndex] = editingModel;
+      if(selectedModel.name === editingModel.name){
+        setSelectedModel(editingModel);
+      }
       setAvailableModels([...availableModels]);
       setModelConfigToLocal();
     }     
   };
+  const handleCheckModelConnectivity = async () => {
+    setConnectivityStatus('checking');
+    const config = {
+      name: editingModel.name,
+      id: editingModel.id,
+      url: editingModel.url,
+      api_key: editingModel.api_key
+    };
+    const result = await checkModelConnectivity(config);
+    if (result.data) {
+      console.log('模型连接成功:', result.data); 
+      setConnectivityStatus('success');
+    } else if (result.error) {
+      console.log('检查模型连接失败', result.error);
+      setConnectivityStatus('error');
+    }
+  }
   // availableModels改了，需要更新selectedModel
-  useEffect(() => {
-    const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
-    if (modelIndex !== -1) {
-      setSelectedModel(availableModels[modelIndex]);
-    }    
-  }, [availableModels]);
+  // useEffect(() => {
+  //   const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
+  //   if (modelIndex !== -1) {
+  //     setSelectedModel(availableModels[modelIndex]);
+  //   }    
+  // }, [availableModels]);
 
   const modelDropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -135,6 +164,7 @@ export function ModelSelect({
       onModelChange(model);
     } 
     setSelectedModel(model);    
+    setCurrentModel(model.name);
     setModelDropdownOpen(false);
   };
 
@@ -142,6 +172,7 @@ export function ModelSelect({
     event.stopPropagation();
     // console.log('Config button clicked for model:', model.name);
     setEditingModel(model);
+    setConnectivityStatus('idle'); // 重置连接状态
     setConfigDialogOpen(!configDialogOpen);
     // console.log('Config dialog should be open:', true, 'for model:', model.name);
   };
@@ -246,7 +277,7 @@ export function ModelSelect({
             >
             <motion.div
                 ref={configRef}
-                className="w-120 bg-white rounded-lg border border-gray-200 shadow-xl"
+                className="w-130 bg-white rounded-lg border border-gray-200 shadow-xl"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -332,10 +363,27 @@ export function ModelSelect({
 
                  <button                
                     type="button"
-                    className="w-full bg-green-400 text-white py-1 px-9 rounded-md hover:bg-green-700 transition-colors"
-                    onClick={() => setConfigDialogOpen(false)}
+                    className={`w-full text-white py-1 px-9 rounded-md transition-colors ${
+                      connectivityStatus === 'success' 
+                        ? 'bg-green-400 hover:bg-green-500' 
+                        : connectivityStatus === 'error'
+                        ? 'bg-red-400 hover:bg-red-500'
+                        : 'bg-blue-400 hover:bg-blue-500'
+                    }`}
+                    onClick={() => {
+                        handleCheckModelConnectivity(); 
+                      }
+                    }
+                    disabled={connectivityStatus === 'checking'}
                 >
-                检测连接
+                {connectivityStatus === 'checking' 
+                  ? '检测中⛓️' 
+                  : connectivityStatus === 'success'
+                  ? '链接成功🔗'
+                  : connectivityStatus === 'error'
+                  ? '链接失败⛓️‍💥'
+                  : '检测连接'
+                }
                 </button>
 
                 <button                
