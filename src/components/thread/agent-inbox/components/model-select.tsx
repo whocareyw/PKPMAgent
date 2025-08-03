@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronUp, ChevronDown, X } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 import { ModelConfig, getModelConfig, setModelConfig, getCurrentModel, setCurrentModel, checkModelConnectivity } from '@/lib/model-config-api';
 
@@ -69,7 +69,9 @@ export function ModelSelect({
           if (resultCurrentModel.data) {
             if(resultCurrentModel.data.current_model){
               const model = availableModels.find((m) => m.name === resultCurrentModel.data?.current_model);
-              model && setSelectedModel(model);
+              if (model) {
+                setSelectedModel(model);
+              }
             }
           }
           setAvailableModels([...availableModels]);
