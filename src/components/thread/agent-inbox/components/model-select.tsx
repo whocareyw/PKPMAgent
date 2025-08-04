@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 import { ModelConfig, getModelConfig, setModelConfig, getCurrentModel, setCurrentModel, checkModelConnectivity } from '@/lib/model-config-api';
 
@@ -297,7 +298,7 @@ export function ModelSelect({
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <label className="block text-sm font-sm text-gray-700">
-                            * 模型 ID                         
+                            <span className="text-rose-500">*</span> 模型 ID                         
                         </label> 
                         <a 
                             href={editingModel.ID_url} 
@@ -319,7 +320,7 @@ export function ModelSelect({
                 
                 <div>
                     <label className="block text-sm font-sm text-gray-700 mb-2">
-                        * API 地址 (默认为官方地址，也可填入 硅基流动 等第三方服务商)                        
+                        <span className="text-rose-500">*</span> API 地址 (默认为官方地址，也可填入 硅基流动 等第三方服务商)                        
                     </label>            
                     <input
                         type="text"
@@ -333,7 +334,7 @@ export function ModelSelect({
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <label className="block text-sm font-sm text-gray-700">
-                            * API 密钥
+                            <span className="text-rose-500">*</span> API 密钥
                         </label>
                         <a 
                             href={editingModel.api_keys_url} 
@@ -344,13 +345,13 @@ export function ModelSelect({
                             获取 API 密钥         
                         </a>
                     </div>
-                    <input
-                        type="text"
+                    <PasswordInput
+                        name="apiKey"
                         value={editingModel.api_key}
                         onChange={(e) => setEditingModel({...editingModel, api_key: e.target.value})}
-                        placeholder="输入 API 密钥"
                         className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
+                        placeholder="输入 API 密钥"
+                    />                  
                 </div>
             </div>
             
