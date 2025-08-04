@@ -75,7 +75,7 @@ export function ModelSelect({
             }
           }
           setAvailableModels([...availableModels]);
-          console.error('获取模型配置成功:', result);
+          console.log('获取模型配置成功:', result);
       } else if (result.error) {
           console.error('获取模型配置失败:', result.error);
       }        
