@@ -94,7 +94,7 @@ export async function setCurrentModel(modelName: string): Promise<ApiResponse<{ 
         error: errorData.error || `HTTP ${response.status}`,
         details: errorData.details
       };
-    }6
+    }
 
     const data = await response.json();
     return { data };
