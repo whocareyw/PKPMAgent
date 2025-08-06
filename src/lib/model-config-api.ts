@@ -2,6 +2,16 @@
 
 // 获取服务基础URL
 const getBaseUrl = (): string => {
+  // 首先尝试从URL参数中获取
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelConfigUrl = urlParams.get('modelConfigUrl');
+    if (modelConfigUrl) {
+      return modelConfigUrl;
+    }
+  }
+  
+  // 然后尝试从环境变量中获取
   return process.env.Model_Config_URL || 'http://localhost:1013';
 };
 

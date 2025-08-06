@@ -128,6 +128,7 @@ const StreamSession = ({
 // Default values for the form
 const DEFAULT_API_URL = "http://localhost:2024";
 const DEFAULT_ASSISTANT_ID = "agent";
+const DEFAULT_MODEL_CONFIG_URL = "http://localhost:1013";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -144,6 +145,9 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   const [assistantId, setAssistantId] = useQueryState("assistantId", {
     defaultValue: envAssistantId || "",
   });
+  const [modelConfigUrl, setModelConfigUrl] = useQueryState("modelConfigUrl", {
+    defaultValue: process.env.NEXT_PUBLIC_MODEL_CONFIG_URL || "",
+  });
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {
@@ -159,9 +163,10 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   // Determine final values to use, prioritizing URL params then env vars
   const finalApiUrl = apiUrl || envApiUrl;
   const finalAssistantId = assistantId || envAssistantId;
+  const finalModelConfigUrl = modelConfigUrl || process.env.NEXT_PUBLIC_MODEL_CONFIG_URL || DEFAULT_MODEL_CONFIG_URL;
 
   // Show the form if we: don't have an API URL, or don't have an assistant ID
-  if (!finalApiUrl || !finalAssistantId) {
+  if (!finalApiUrl || !finalAssistantId || !finalModelConfigUrl) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
         <div className="animate-in fade-in-0 zoom-in-95 bg-background flex max-w-3xl flex-col rounded-lg border shadow-lg">
@@ -186,10 +191,12 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
               const apiUrl = formData.get("apiUrl") as string;
               const assistantId = formData.get("assistantId") as string;
               const apiKey = formData.get("apiKey") as string;
+              const modelConfigUrl = formData.get("modelConfigUrl") as string;
 
               setApiUrl(apiUrl);
               setApiKey(apiKey);
               setAssistantId(assistantId);
+              setModelConfigUrl(modelConfigUrl);
 
               form.reset();
             }}
@@ -231,6 +238,22 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
             </div>
 
             <div className="flex flex-col gap-2">
+              <Label htmlFor="modelConfigUrl">
+                Model Config URL<span className="text-rose-500">*</span>
+              </Label>
+              <p className="text-muted-foreground text-sm">
+                This is the URL of your model configuration service.
+              </p>
+              <Input
+                id="modelConfigUrl"
+                name="modelConfigUrl"
+                className="bg-background"
+                defaultValue={modelConfigUrl || DEFAULT_MODEL_CONFIG_URL}
+                required
+              />
+            </div>
+
+            {/* <div className="flex flex-col gap-2">
               <Label htmlFor="apiKey">LangSmith API Key</Label>
               <p className="text-muted-foreground text-sm">
                 This is <strong>NOT</strong> required if using a local LangGraph
@@ -245,7 +268,7 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
                 className="bg-background"
                 placeholder="lsv2_pt_..."
               />
-            </div>
+            </div> */}
 
             <div className="mt-2 flex justify-end">
               <Button
