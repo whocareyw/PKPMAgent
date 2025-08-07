@@ -7,6 +7,7 @@ import { MarkdownText } from "../markdown-text";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
+import { ThinkingSection } from "./Thinking";
 import { MessageContentComplex } from "@langchain/core/messages";
 import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
@@ -153,6 +154,10 @@ export function AssistantMessage({
     });
   }
 
+  if (message?.content?.length == 0 && message?.additional_kwargs?.reasoning_content) { 
+    console.log('message?.additional_kwargs?.reasoning_content', message.additional_kwargs?.reasoning_content);
+  }
+
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
 
@@ -174,6 +179,10 @@ export function AssistantMessage({
           </>
         ) : (
           <>
+            { message?.additional_kwargs?.reasoning_content && (
+              <ThinkingSection content={String(message.additional_kwargs?.reasoning_content || '')} isUnFinish={message?.content?.length == 0} />
+            )}
+
             {contentString.length > 0 && (
               <div className="py-1">
                 <MarkdownText>{contentString}</MarkdownText>
