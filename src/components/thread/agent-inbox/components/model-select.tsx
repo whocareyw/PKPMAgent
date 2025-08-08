@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { TongyiLogoSVG, ZhipuAILogoSVG, MoonShotLogoSVG, DeepSeekLogoSVG, SiliconFlowLogoSVG } from "@/components/icons";
+
+
 
 import { ModelConfig, getModelConfig, setModelConfig, getCurrentModel, setCurrentModel, checkModelConnectivity } from '@/lib/model-config-api';
 
@@ -9,6 +12,8 @@ import { ModelConfig, getModelConfig, setModelConfig, getCurrentModel, setCurren
 interface ModelConfigEx extends ModelConfig {
   api_keys_url: string;
   ID_url: string;
+  logo: React.FC<{ width: number; height: number }>;
+  ChineseName: string;
 }
 
 interface ModelSelectProps {
@@ -26,31 +31,41 @@ export function ModelSelect({
           url: "https://dashscope.aliyuncs.com/compatible-mode/v1", 
           api_key: '',
           api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
-          ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u" },
-      { name: "GLM", 
+          ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u",
+          logo: TongyiLogoSVG ,
+          ChineseName: "通义千问"},      
+      { name: "ChatGLM", 
           id: "glm-4.5",
           url: "https://open.bigmodel.cn/api/paas/v4"                        , 
           api_key: '',
           api_keys_url: "https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys" , 
-          ID_url: "https://open.bigmodel.cn/console/modelcenter/square" },
-      { name: "Kimi",                           
+          ID_url: "https://open.bigmodel.cn/console/modelcenter/square",
+          logo: ZhipuAILogoSVG ,
+          ChineseName: "智谱清言"},
+      { name: "Moonshot",                           
           id: "kimi-k2-0711-preview",
           url: "https://api.moonshot.cn/v1"                           , 
           api_key: '',
           api_keys_url: "https://platform.moonshot.cn/console/api-keys" ,
-          ID_url: "https://platform.moonshot.cn/docs/introduction" },
+          ID_url: "https://platform.moonshot.cn/docs/introduction",
+          logo: MoonShotLogoSVG ,
+          ChineseName: "月之暗面"},
       { name: "DeepSeek", 
           id: "deepseek-chat",
           url: "https://api.deepseek.com"                        , 
           api_key: '',
           api_keys_url: "https://platform.deepseek.com/api_keys" , 
-          ID_url: "https://api-docs.deepseek.com/zh-cn/" },
-      { name: "siliconflow",                  
+          ID_url: "https://api-docs.deepseek.com/zh-cn/" ,
+          logo: DeepSeekLogoSVG ,
+          ChineseName: "深度求索"},
+      { name: "SiliconFlow",                  
           id: "Qwen/Qwen3-Coder-480B-A35B-Instruct",
           url: "https://api.siliconflow.cn/v1" , 
           api_key: '',
           api_keys_url: "https://cloud.siliconflow.cn/me/account/ak" ,
-          ID_url: "https://cloud.siliconflow.cn/me/models" },
+          ID_url: "https://cloud.siliconflow.cn/me/models",
+          logo: SiliconFlowLogoSVG ,
+          ChineseName: "硅基流动"},
       ]);   
   // 获取模型配置（如果本地有配置会返回本地的，没有的话会保存传入的配置）
   const getModelConfigFromLocal = async () => {        
@@ -201,9 +216,12 @@ export function ModelSelect({
           whileHover={{ scale: 1 }}
           whileTap={{ scale: 1 }}
         >
+            <div className="flex items-center gap-2">
+                 <selectedModel.logo width={30} height={30} />
+            </div>
             <div className="flex flex-col space-y-0 items-start">
                 <span className="text-sm font-semibold text-gray-600">
-                    {selectedModel.name}
+                    {selectedModel.name + ' ' + selectedModel.ChineseName}
                 </span>            
                 <span className="text-xs font-normal text-gray-400">
                     {selectedModel.id}
@@ -218,7 +236,7 @@ export function ModelSelect({
       <AnimatePresence key="dropdown">
         {modelDropdownOpen && (
           <motion.div
-            className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-55 overflow-hidden rounded-lg border border-gray-200 bg-white`}
+            className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-60 overflow-hidden rounded-lg border border-gray-200 bg-white`}
             initial={{ 
               opacity: 0, 
               y: dropdownDirection === 'up' ? 10 : -10, 
@@ -243,7 +261,10 @@ export function ModelSelect({
                     }`}
                     whileHover={{ backgroundColor: '#f3f4f6' }}
                   >
-                    {model.name}
+                    <div className="flex items-center gap-2">
+                      <model.logo width={15} height={15} />
+                      <span>{model.name+ ' ' + model.ChineseName}</span>
+                    </div>
                   </motion.button>
                   <motion.button
                     type="button"
@@ -290,8 +311,9 @@ export function ModelSelect({
                        
             <div className="p-3 space-y-2">
                  <div>
-                    <label className="p-1 block text-bold font-bold text-gray-700 mb-2">
-                        {editingModel.name}          
+                    <label className="p-1 block text-bold font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <editingModel.logo width={20} height={20} /> {editingModel.name + ' ' + editingModel.ChineseName}          
+
                     </label>     
                 </div>  
 
