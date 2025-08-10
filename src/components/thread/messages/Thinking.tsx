@@ -49,7 +49,7 @@ export function ThinkingSection({ content , isUnFinish}: { content: string; isUn
             >
               <div className="border-t border-gray-200 px-4 py-3">
                 <div className="text-xs text-gray-500">
-                  <MarkdownText>{content}</MarkdownText>
+                  {content}
                 </div>
               </div>
             </motion.div>

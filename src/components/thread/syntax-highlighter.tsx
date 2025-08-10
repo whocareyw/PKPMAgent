@@ -31,8 +31,10 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
       customStyle={{
         margin: 0,
         width: "100%",
-        background: "transparent",
+        background: "white",
+        backgroundColor: "white", // 确保背景透明
         fontSize: "0.75rem",
+        //#color: "rgb(0, 114, 122)", // 设置默认文字颜色
         //padding: "1.5rem 1rem",
       }}
       className={className}
