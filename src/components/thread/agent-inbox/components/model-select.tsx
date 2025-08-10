@@ -213,8 +213,8 @@ export function ModelSelect({
           onClick={toggleDropdown}
           className="flex cursor-pointer items-center justify-center space-x-2 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
           initial={{ scale: 1 }}
-          whileHover={{ scale: 1 }}
-          whileTap={{ scale: 1 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
         >
             <div className="flex items-center gap-2">
                  <selectedModel.logo width={30} height={30} />
@@ -381,7 +381,10 @@ export function ModelSelect({
                 <button                
                     type="button"
                     className="w-full bg-blue-400 text-white py-1 px-9 rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={() =>{handleFinishEditModel(); setConfigDialogOpen(false)}}
+                    onClick={() =>{
+                      handleModelSelect(editingModel);
+                      handleFinishEditModel(); 
+                      setConfigDialogOpen(false)}}
                 >
                 确定启用
                 </button>

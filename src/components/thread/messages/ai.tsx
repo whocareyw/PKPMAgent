@@ -154,10 +154,6 @@ export function AssistantMessage({
     });
   }
 
-  if (message?.content?.length == 0 && message?.additional_kwargs?.reasoning_content) { 
-    console.log('message?.additional_kwargs?.reasoning_content', message.additional_kwargs?.reasoning_content);
-  }
-
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
 
