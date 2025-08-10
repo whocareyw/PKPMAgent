@@ -1,7 +1,7 @@
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 
 function isComplexValue(value: any): boolean {
@@ -87,9 +87,9 @@ export function ToolCalls({
         return (
           <div
             key={idx}
-            className="w-full overflow-hidden rounded-lg border border-gray-200"
+            className="w-full overflow-hidden rounded-lg border border-gray-100"
           >            
-            <div className="border-b border-gray-50 bg-gray-50 px-2 py-1">
+            {/* <div className="border-b border-gray-50 bg-gray-50 px-2 py-1">
               <div className="flex flex-wrap items-center justify-between gap-1">
                 {tc.name ? (
                   <h3 className="font-sm text-gray-900">
@@ -102,13 +102,33 @@ export function ToolCalls({
                   <h3 className="font-sm text-gray-900">Tool Result</h3>
                 )}            
               </div>
-            </div>
+            </div> */}
             <motion.div
-              className="min-w-full bg-white"
+              className="rounded-lg border border-gray-100 bg-gray-50"
               initial={false}
-              animate={{ height: "auto" }}
+              animate={{ backgroundColor: isExpanded ? "rgb(249 250 251)" : "rgb(249 250 251)" }}
               transition={{ duration: 0.2 }}
             >
+              <motion.button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex w-full cursor-pointer items-center justify-between px-2 py-1 text-left text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1 }}
+                whileTap={{ scale: 1 }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-md">🛠️</span>
+                  <span className="font-bold text-sm">Tool Calling...</span>
+                  <span className="font-medium text-sm">{tc.name}</span>
+                </div>
+                <motion.div
+                  initial={false}
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </motion.div>
+              </motion.button>
               {isExpanded && (
                 <div className="p-3">
                   <AnimatePresence
@@ -151,18 +171,7 @@ export function ToolCalls({
                     </motion.div>
                   </AnimatePresence>
                 </div>
-              )}
-              <motion.button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-1 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
-                initial={{ scale: 1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="w-4 h-4">
-                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </div>
-              </motion.button>
+              )}      
             </motion.div>
           </div>
         );
@@ -201,8 +210,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
 
   return (
     <div className="w-fit h-full grid grid-rows-[1fr_auto] gap-0">
-      <div className="overflow-hidden rounded-lg border border-gray-200">
-        <div className="border-b border-gray-50 bg-gray-50 px-2 py-1">
+      <div className="overflow-hidden rounded-lg border border-gray-100">
+        {/* <div className="border-b border-gray-50 bg-gray-50 px-2 py-1">
           <div className="flex flex-wrap items-center justify-between gap-1">
             {message.name ? (
               <h3 className="font-sm text-gray-900">
@@ -215,13 +224,33 @@ export function ToolResult({ message }: { message: ToolMessage }) {
               <h3 className="font-sm text-gray-900">🛠️Tool Result</h3>
             )}            
           </div>
-        </div>
-        <motion.div          
-          className="min-w-full bg-white"
+        </div> */}
+       <motion.div
+          className="rounded-lg border border-gray-100 bg-gray-50"
           initial={false}
-          animate={{ height: "auto" }}
+          animate={{ backgroundColor: isExpanded ? "rgb(249 250 251)" : "rgb(249 250 251)" }}
           transition={{ duration: 0.2 }}
         >
+          <motion.button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex w-full cursor-pointer items-center justify-between px-2 py-1 text-left text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
+            initial={{ scale: 1 }}
+            whileHover={{ scale: 1 }}
+            whileTap={{ scale: 1 }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-md">🛠️</span>
+              <span className="font-bold text-sm">Tool Result ：</span>
+              <span className="font-medium text-sm">{message.name}</span>
+            </div>
+            <motion.div
+              initial={false}
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </motion.div>
+          </motion.button>
           {isExpanded && (
             <div className="p-3">
               <AnimatePresence
@@ -276,18 +305,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                 </motion.div>
               </AnimatePresence>
             </div>
-          )}
-          <motion.button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-1 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
-            initial={{ scale: 1 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <div className="w-4 h-4">
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-          </motion.button>
+          )}          
         </motion.div>
       </div>
     </div>

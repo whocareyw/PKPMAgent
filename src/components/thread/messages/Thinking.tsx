@@ -10,7 +10,7 @@ export function ThinkingSection({ content , isUnFinish}: { content: string; isUn
   if (!content) return null;
 
   return (
-    <div className="py-1">
+    <div className="w-fit overflow-hidden rounded-lg border border-gray-100">
       <motion.div
         className="rounded-lg border border-gray-100 bg-gray-50"
         initial={false}
@@ -25,7 +25,7 @@ export function ThinkingSection({ content , isUnFinish}: { content: string; isUn
           whileHover={{ scale: 1 }}
           whileTap={{ scale: 1 }}
         >
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <span className="font-bold text-md">💡</span>
             <span className="font-bold text-sm">Thinking...</span>
           </div>
