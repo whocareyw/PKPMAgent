@@ -27,7 +27,7 @@ function ThreadList({
   return (
     <div className="flex h-full w-full flex-col items-start justify-start gap-2 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
       {threads.map((t) => {
-        let itemText = "New Chat" //t.thread_id;
+        let itemText = "Latest Chat(最新聊天)" //t.thread_id;
         if (
           typeof t.values === "object" &&
           t.values &&
