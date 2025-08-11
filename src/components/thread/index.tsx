@@ -573,7 +573,7 @@ export function Thread() {
                               (!input.trim() && contentBlocks.length === 0)
                             }
                           >
-                            Send
+                            提交 {'>'}
                           </Button>
                         )}
                       </div>
