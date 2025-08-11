@@ -523,7 +523,7 @@ export function Thread() {
 
                             <ModelSelect />
                             {/* 是否隐藏工具调用 */}
-                            <Switch
+                            {/* <Switch
                               id="render-tool-calls"
                               checked={hideToolCalls ?? false}
                               onCheckedChange={setHideToolCalls}
@@ -533,8 +533,7 @@ export function Thread() {
                               className="text-sm font-semibold text-gray-600"
                             >
                               Hide Tool 
-                            </Label>
-                            
+                            </Label> */}                            
                           </div>
                         </div>
                         
