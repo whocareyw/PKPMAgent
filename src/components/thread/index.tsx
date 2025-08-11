@@ -491,7 +491,7 @@ export function Thread() {
                           <button
                             key={index}
                             onClick={() => setInput(question)}
-                            className="text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 text-sm text-gray-700 hover:text-gray-900"
+                            className="text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-sm text-gray-700 hover:text-gray-900"
                           >
                             {question}
                           </button>
