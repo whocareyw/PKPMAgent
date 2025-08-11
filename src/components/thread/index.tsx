@@ -377,7 +377,8 @@ export function Thread() {
                       )}
                     </Button>
                   )}
-                </div>
+                </div>          
+                
                 <motion.button
                   className="flex cursor-pointer items-center gap-2"
                   onClick={() => setThreadId(null)}
@@ -427,7 +428,7 @@ export function Thread() {
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
-                !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+                !chatStarted && "mt-[10vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
               contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
@@ -477,6 +478,27 @@ export function Thread() {
                     </div>
                   )}
 
+                  {/* 推荐问题组件 */}
+                  {!chatStarted && (
+                    <div className="mx-auto mb-1 w-full max-w-3xl">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-0">
+                        {[
+                          "获取选中柱子轴压比，绘制直方图",
+                          "在选中的柱子顶部连接上主梁，xy两个方向都形成框架",
+                          "统计本层有哪些梁下净高不足3000m，高亮出来",
+                          "统计选中构件的混凝土、钢筋的材料用量"
+                        ].map((question, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setInput(question)}
+                            className="text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 text-sm text-gray-700 hover:text-gray-900"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                   <div
@@ -513,7 +535,7 @@ export function Thread() {
                             form?.requestSubmit();
                           }
                         }}
-                        placeholder="模型创建、修改、计算结果查询/绘图...  有命令，尽管说，Shift+Enter换行"
+                        placeholder="模型创建、修改、计算结果查询/绘图...  有需求，尽管说，Shift+Enter换行"
                         className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
@@ -562,7 +584,7 @@ export function Thread() {
                             className="ml-auto"
                           >
                             <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancel
+                            停止
                           </Button>
                         ) : (
                           <Button
