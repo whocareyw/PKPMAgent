@@ -89,6 +89,37 @@ function ScrollToBottom(props: { className?: string }) {
   );
 }
 
+
+function OpenSurvey() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <a
+            href="https://wj.qq.com/s2/23450922/74d5/"
+            target="_blank"
+            className="flex items-center justify-center rounded-md text-white px-2 py-1 text-medium font-medium transition-colors"
+            style={{
+              backgroundColor: 'rgb(31, 154, 236)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgb(25, 135, 210)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgb(31, 154, 236)';
+            }}  >
+            许愿池😊 {'>'}
+          </a>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>点击填写您最希望实现的功能</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+
 function OpenGitHubRepo() {
   return (
     <TooltipProvider>
@@ -323,7 +354,8 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <div className="absolute top-2 right-4 flex items-center">
+              <div className="absolute top-5 right-8 flex items-center">
+                <OpenSurvey />
                 {/* <OpenGitHubRepo /> */}
               </div>
             </div>
@@ -368,10 +400,6 @@ export function Thread() {
                 </motion.button>
                 <div className="flex items-center gap-4">
                 
-                <div className="flex items-center">
-                  {/* <OpenGitHubRepo /> */}
-                  {/* //开启新对话 */}
-                </div>
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
@@ -380,7 +408,14 @@ export function Thread() {
                   onClick={() => setThreadId(null)}
                 >
                   <SquarePen className="size-6" />
-                </TooltipIconButton>
+                </TooltipIconButton>             
+                 
+                <div className="flex items-center">
+                  <OpenSurvey />
+                  {/* <OpenGitHubRepo /> */}
+                  {/* //开启新对话 */}
+                </div>  
+
               </div>
               </div>
 
