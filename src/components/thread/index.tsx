@@ -108,11 +108,11 @@ function OpenSurvey() {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'rgb(31, 154, 236)';
             }}  >
-            许愿池😊 {'>'}
+            许愿池😊 & 点我吐槽☹️ {'>'}
           </a>
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          <p>点击填写您最希望实现的功能</p>
+          <p>点击填写您最希望实现的功能，或吐槽最不满意的地方</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
