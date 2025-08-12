@@ -25,15 +25,7 @@ export function ModelSelect({
   onModelChange,
   className = ""
 }: ModelSelectProps) {    
-  const [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([      
-      { name: "Qwen",                
-          id: "qwen3-235b-a22b-instruct-2507",
-          url: "https://dashscope.aliyuncs.com/compatible-mode/v1", 
-          api_key: '',
-          api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
-          ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u",
-          logo: TongyiLogoSVG ,
-          ChineseName: "通义千问"},      
+  const [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([         
       { name: "ChatGLM", 
           id: "glm-4.5",
           url: "https://open.bigmodel.cn/api/paas/v4"                        , 
@@ -41,7 +33,15 @@ export function ModelSelect({
           api_keys_url: "https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys" , 
           ID_url: "https://open.bigmodel.cn/console/modelcenter/square",
           logo: ZhipuAILogoSVG ,
-          ChineseName: "智谱清言"},
+          ChineseName: "智谱清言(推荐)"},  
+      { name: "Qwen",                
+          id: "qwen3-235b-a22b-instruct-2507",
+          url: "https://dashscope.aliyuncs.com/compatible-mode/v1", 
+          api_key: '',
+          api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
+          ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u",
+          logo: TongyiLogoSVG ,
+          ChineseName: "通义千问"},     
       { name: "Moonshot",                           
           id: "kimi-k2-0711-preview",
           url: "https://api.moonshot.cn/v1"                           , 
@@ -236,7 +236,7 @@ export function ModelSelect({
       <AnimatePresence key="dropdown">
         {modelDropdownOpen && (
           <motion.div
-            className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-60 overflow-hidden rounded-lg border border-gray-200 bg-white`}
+            className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-70 overflow-hidden rounded-lg border border-gray-200 bg-white`}
             initial={{ 
               opacity: 0, 
               y: dropdownDirection === 'up' ? 10 : -10, 

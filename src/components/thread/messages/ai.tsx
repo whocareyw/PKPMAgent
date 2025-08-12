@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
 import { ThinkingSection } from "./Thinking";
 import { MessageContentComplex } from "@langchain/core/messages";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment } from "react";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -134,12 +134,17 @@ export function AssistantMessage({
     message.tool_calls?.some(
       (tc) => tc.args && Object.keys(tc.args).length > 0,
     );    
-  const isTempToolCall = !toolCallsHaveContents && 
-      message && 
-      'tool_calls' in message && 
-      message.tool_calls && 
-      message.additional_kwargs?.tool_calls;  
-  if (isTempToolCall) {
+
+  let isTempToolCall: boolean = false
+  if (!toolCallsHaveContents && 
+    message?.additional_kwargs?.tool_calls && 
+    Array.isArray(message.additional_kwargs.tool_calls) && 
+    message.additional_kwargs.tool_calls.length > 0)
+    { 
+      isTempToolCall = true; 
+    }
+
+  if (isTempToolCall && message?.additional_kwargs?.tool_calls && "tool_calls" in message ) {
     message.tool_calls = (message.tool_calls || []).map((tc, index) => {
       const additionalTc = message.additional_kwargs?.tool_calls && Array.isArray(message.additional_kwargs.tool_calls) ? message.additional_kwargs.tool_calls[index] : undefined;
       if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
