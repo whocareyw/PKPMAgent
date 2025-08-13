@@ -7,6 +7,7 @@ import { MarkdownText } from "../markdown-text";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
+import { TokenUsageSection } from "./TokenUsage";
 import { ThinkingSection } from "./Thinking";
 import { MessageContentComplex } from "@langchain/core/messages";
 import { Fragment } from "react";
@@ -15,6 +16,7 @@ import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+
 
 function CustomComponent({
   message,
@@ -220,7 +222,7 @@ export function AssistantMessage({
                 "mr-auto flex items-center gap-2 transition-opacity",
                 "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
               )}
-            >
+            >             
               <BranchSwitcher
                 branch={meta?.branch}
                 branchOptions={meta?.branchOptions}
@@ -232,7 +234,11 @@ export function AssistantMessage({
                 isLoading={isLoading}
                 isAiMessage={true}
                 handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-              />
+              />            
+              {/* Token使用量显示 */}
+              {message && message.type === "ai" && (
+                <TokenUsageSection message={message} />
+              )}
             </div>
           </>
         )}
