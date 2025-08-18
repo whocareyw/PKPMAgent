@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getTools } from '@/lib/model-config-api';
+import { getTools, setEnabledToolsSet, getEnabledToolsSet } from '@/lib/model-config-api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Wrench, Zap, Settings } from 'lucide-react';
@@ -13,27 +12,50 @@ function ToolList() {
   const [toolSets, setToolSets] = useState<Record<string, Record<string, string>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [enabledSets, setEnabledSets] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<string>('');
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchTools = async () => {
-      const response = await getTools();
-      console.log('你好，我是工具列表', response);
-      if (response.error) {
-        setError(response.error);
-      } else {
-        setToolSets(response.data || null);
-        // 初始化所有工具集为启用状态
-        if (response.data) {
-          const initialEnabled: Record<string, boolean> = {};
-          Object.keys(response.data).forEach(setName => {
-            initialEnabled[setName] = true;
-          });
-          setEnabledSets(initialEnabled);
+      const toolsResponse = await getTools();
+      if (toolsResponse.error) {
+        setError(toolsResponse.error);
+        return;
+      }
+      setToolSets(toolsResponse.data || null);
+      if (toolsResponse.data) {
+        const firstKey = Object.keys(toolsResponse.data)[0];
+        if (firstKey) {
+          setActiveTab(firstKey);
         }
       }
     };
     fetchTools();
   }, []);
+
+  useEffect(() => {
+    const fetchEnabled = async () => {
+      if (!open || !toolSets) return;
+      const enabledResponse = await getEnabledToolsSet();
+      if (enabledResponse.error) {
+        console.warn('获取启用工具组失败:', enabledResponse.error);
+        const initialEnabled: Record<string, boolean> = {};
+        Object.keys(toolSets).forEach(setName => {
+          initialEnabled[setName] = true;
+        });
+        setEnabledSets(initialEnabled);
+      } else {
+        console.log('获取启用工具组成功:', enabledResponse.data);
+        const enabledList = enabledResponse.data?.enabled_tools_set || [];
+        const enabledState: Record<string, boolean> = {};
+        Object.keys(toolSets).forEach(setName => {
+          enabledState[setName] = enabledList.includes(setName);
+        });
+        setEnabledSets(enabledState);
+      }
+    };
+    fetchEnabled();
+  }, [open, toolSets]);
 
   const handleSetToggle = (setName: string, checked: boolean) => {
     setEnabledSets(prev => ({
@@ -42,8 +64,24 @@ function ToolList() {
     }));
   };
 
+  const handleConfirm = async () => {
+    const enabledToolsList = Object.entries(enabledSets)
+      .filter(([_, enabled]) => enabled)
+      .map(([setName, _]) => setName);
+    
+    const response = await setEnabledToolsSet(enabledToolsList);
+    if (response.error) {
+      console.error('设置启用工具组失败:', response.error);
+      // 这里可以添加错误提示
+    } else {
+      console.log('工具组设置成功:', response.data?.message);
+      // 这里可以添加成功提示
+    }
+    setOpen(false);
+  };
+
   const renderToolsForSet = (tools: Record<string, string>) => (
-    <ScrollArea className="h-[432px] w-flex pr-0">
+    <ScrollArea className="h-[452px] w-flex pr-0">
       <div className="space-y-2">
         {Object.entries(tools).map(([toolName, description]) => (
           <div key={toolName} className="group p-2 rounded-lg border border-gray-200 bg-gray-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
@@ -64,49 +102,46 @@ function ToolList() {
   );
 
   const toolContent = (
-    <Tabs defaultValue={Object.keys(toolSets || {})[0]} className="w-full" orientation="vertical">
+    <div className="w-full">
       <div className="flex gap-2">
         <div className="w-fit flex-shrink-0">
-          <TabsList className="flex flex-col h-auto p-1 w-fit gap-3 bg-gray-100 border border-gray-200">
+          <div className="flex flex-col h-auto p-1 w-fit gap-2 bg-gray-100 border border-gray-200 rounded-md">
             {Object.entries(toolSets || {}).map(([setName, tools]) => (
-               <TabsTrigger key={setName} value={setName} className="flex items-center gap-2 text-sm px-1 py-1 w-full justify-start">                
+              <div key={setName} className="flex items-center gap-2 text-sm px-1 py-1 w-full">
                 <Switch 
                    checked={enabledSets[setName] || false}
                    onCheckedChange={(checked) => handleSetToggle(setName, checked as boolean)}
-                   onClick={(e) => e.stopPropagation()}
                    className="flex-shrink-0"
                  />
-                <span className="flex-1 text-left flex flex-col gap-1">
+                <div 
+                  onClick={() => setActiveTab(setName)}
+                  className={`flex-1 text-left flex flex-col gap-1 justify-start h-auto py-1 cursor-pointer rounded px-1 transition-colors ${
+                    activeTab === setName ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-50'
+                  }`}
+                >
                   <span className="text-mid text-gray-900 font-simibold"> 
                     {setName.split('_')[0]}
                   </span>
                   <span className="text-xs text-gray-500">{setName.split('_')[1]}</span>
                   {/* :{Object.keys(tools).length} */}
-                </span>               
-              </TabsTrigger>
+                </div>               
+              </div>
             ))}
-          </TabsList>
+          </div>
         </div>
         <div className="flex-1">
-          {Object.entries(toolSets || {}).map(([setName, tools]) => (
-            <TabsContent key={setName} value={setName} className="mt-0">
-              {/* <div className="mb-3 flex items-center gap-2">
-                {getIconForToolSet(setName)}
-                <h3 className="text-lg font-semibold text-gray-800">{setName}</h3>
-                <Badge variant="outline" className="ml-auto">
-                  {Object.keys(tools).length} tools
-                </Badge>
-              </div> */}
-              {renderToolsForSet(tools)}
-            </TabsContent>
-          ))}
+          {activeTab && toolSets && toolSets[activeTab] && (
+            <div className="mt-0">
+              {renderToolsForSet(toolSets[activeTab])}
+            </div>
+          )}
         </div>
       </div>
-    </Tabs>
+    </div>
   );
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <motion.button
           type="button" 
@@ -144,13 +179,23 @@ function ToolList() {
         )
         }
         <div className="mt-0 pt-3 border-t border-gray-200">
-          <p className="text-mid text-gray-600 text-left">
-            💡 使用左侧开关可以控制是否启用工具组          
-          </p>
-          <p className="text-mid text-gray-600 text-left">
-            ✨ 明确场景，只启用必要的工具组可以提高执行的效率与准确性，并大幅降低Token消耗。
-          </p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-mid text-gray-600 text-left">
+                💡 使用左侧开关可以控制是否启用工具组          
+              </p>
+              <p className="text-mid text-gray-600 text-left">
+                ✨ 明确场景，只启用必要的工具组可以提高执行的效率与准确性，并大幅降低Token消耗。
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <Button onClick={handleConfirm} className="bg-blue-600 hover:bg-blue-700 text-white">
+                确定
+              </Button>
+            </div>
+          </div>
         </div>
+        
       </DialogContent>
     </Dialog>
   );

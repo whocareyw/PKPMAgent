@@ -210,3 +210,60 @@ export async function getTools(): Promise<ApiResponse<Record<string, Record<stri
   }
 }
 
+// 设置启用的工具组
+export async function setEnabledToolsSet(tools: string[]): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/set_enabled_tools_set`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tools),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 获取启用的工具组
+export async function getEnabledToolsSet(): Promise<ApiResponse<{ enabled_tools_set: string[] }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_enabled_tools_set`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
