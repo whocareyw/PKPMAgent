@@ -181,3 +181,32 @@ export async function checkModelConnectivity(modelConfig: ModelConfig): Promise<
   }
 }
 
+
+// 获取工具列表
+export async function getTools(): Promise<ApiResponse<Record<string, Record<string, string>>>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_tools`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+

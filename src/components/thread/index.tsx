@@ -47,6 +47,7 @@ import {
   useArtifactContext,
 } from "./artifact";
 import { ModelSelect } from "./agent-inbox/components/model-select";
+import ToolList from "./agent-inbox/components/tool-list";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -543,7 +544,8 @@ export function Thread() {
                         <div>
                           <div className="flex items-center space-x-1">                        
 
-                            <ModelSelect />
+                            <ModelSelect />                            
+                            <ToolList />
                             {/* 是否隐藏工具调用 */}
                             {/* <Switch
                               id="render-tool-calls"
