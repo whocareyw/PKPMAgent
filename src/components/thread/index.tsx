@@ -469,43 +469,26 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
+                <div className="sticky bottom-0 flex flex-col items-center gap-5 bg-white">
                   {!chatStarted && (
                     <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
-                      <h1 className="text-2xl font-semibold tracking-tight">
+                      {/* <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
+                        PKPM
+                      </h1> */}
+                      <LangGraphLogoSVG className="h-10 flex-shrink-0" />
+                      <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
                         Agent
                       </h1>
                     </div>
                   )}
 
-                  {/* 推荐问题组件 */}
-                  {!chatStarted && (
-                    <div className="mx-auto mb-1 w-full max-w-3xl">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-0">
-                        {[
-                          "获取选中柱子轴压比，绘制直方图",
-                          "在选中的柱子顶部连接上主梁，xy两个方向都形成框架",
-                          "选中的梁线画到cad，并标注截面尺寸",
-                          "获取位移角数据，绘制x轴为位移角、y轴为楼层的曲线"
-                        ].map((question, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setInput(question)}
-                            className="text-left p-3 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-sm text-gray-700 hover:text-gray-900"
-                          >
-                            {question}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "bg-muted relative z-10 mx-auto mb-2 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-solid",
@@ -537,7 +520,7 @@ export function Thread() {
                           }
                         }}
                         placeholder="模型创建、修改、计算结果查询/绘图...  有需求，尽管说，Shift+Enter换行"
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-3 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-0">
@@ -601,8 +584,30 @@ export function Thread() {
                           </Button>
                         )}
                       </div>
-                    </form>
+                    </form>                    
                   </div>
+
+                  {/* 推荐问题组件 */}
+                  {!chatStarted && (
+                    <div className="mx-auto mb-0 w-full max-w-3xl">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-0">
+                        {[
+                          "获取选中柱子轴压比，绘制直方图",
+                          "在选中的柱子顶部连接上主梁，xy两个方向都形成框架",
+                          "选中的梁线画到cad，并标注截面尺寸",
+                          "获取位移角数据，绘制x轴为位移角、y轴为楼层的曲线"
+                        ].map((question, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setInput(question)}
+                            className="text-left p-2 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-sm text-gray-500 hover:text-gray-900"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               }
             />

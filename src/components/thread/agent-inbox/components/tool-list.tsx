@@ -150,7 +150,7 @@ function ToolList() {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
         >
-            <span className="text-mid font-semibold text-gray-600">
+            <span className="text-sm font-semibold text-gray-600">
               🛠️ 管理
             </span> 
           </motion.button>

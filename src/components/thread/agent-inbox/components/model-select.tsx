@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { TongyiLogoSVG, ZhipuAILogoSVG, MoonShotLogoSVG, DeepSeekLogoSVG, SiliconFlowLogoSVG } from "@/components/icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 
 
@@ -207,30 +213,40 @@ export function ModelSelect({
   return (
     <div className={`relative ${className}`} ref={modelDropdownRef}>
       <div className="flex items-center space-x-2">
-        <motion.button
-          ref={buttonRef}
-          type="button" 
-          onClick={toggleDropdown}
-          className="flex cursor-pointer items-center justify-center space-x-2 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
-          initial={{ scale: 1 }}
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-        >
-            <div className="flex items-center gap-2">
-                 <selectedModel.logo width={30} height={30} />
-            </div>
-            <div className="flex flex-col space-y-0 items-start">
-                <span className="text-sm font-semibold text-gray-600">
-                    {selectedModel.name + ' ' + selectedModel.ChineseName}
-                </span>            
-                <span className="text-xs font-normal text-gray-400">
-                    {selectedModel.id}
-                </span>
-            </div>
-            <div className="w-4 h-4">
-                {modelDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-        </motion.button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.button
+                ref={buttonRef}
+                type="button" 
+                onClick={toggleDropdown}
+                className="flex cursor-pointer items-center justify-center space-x-2 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                  <div className="flex items-center gap-2">
+                       <selectedModel.logo width={18} height={18} />
+                  </div>
+                  <div className="flex flex-col space-y-0 items-start">
+                      <span className="text-sm font-semibold text-gray-600">                  
+                          {selectedModel.name}
+                          {/* {selectedModel.name + ' ' + selectedModel.ChineseName} */}
+                      </span>            
+                      {/* <span className="text-xs font-normal text-gray-400">
+                          {selectedModel.id}
+                      </span> */}
+                  </div>
+                  <div className="w-4 h-4">
+                      {modelDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </div>
+              </motion.button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{selectedModel.id}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <AnimatePresence key="dropdown">
