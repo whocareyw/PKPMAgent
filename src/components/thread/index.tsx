@@ -99,7 +99,7 @@ function OpenSurvey() {
           <a
             href="https://wj.qq.com/s2/23450922/74d5/"
             target="_blank"
-            className="flex items-center justify-center rounded-md text-white px-2 py-1 text-medium font-medium transition-colors"
+            className="flex items-center justify-center rounded-md text-white px-1.5 py-1 text-sm font-medium transition-colors"
             style={{
               backgroundColor: 'rgb(31, 154, 236)',
             }}
@@ -109,7 +109,7 @@ function OpenSurvey() {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'rgb(31, 154, 236)';
             }}  >
-            许愿池😊 & 点我吐槽☹️ {'>'}
+            许愿池😊 & 点我吐槽☹️
           </a>
         </TooltipTrigger>
         <TooltipContent side="bottom">
@@ -392,13 +392,17 @@ export function Thread() {
                     damping: 30,
                   }}
                 >
-                  <LangGraphLogoSVG
+                  {/* <LangGraphLogoSVG
                     width={48}
                     height={48}
-                  />
-                  <span className="text-xl font-semibold tracking-tight">
-                    Agent
+                  /> */}
+                  {/* [rgb(31,154,236)] */}
+                  <span className="text-black text-xl font-bold tracking-tight">
+                    PKPM Agent
                   </span>
+                  {/* <span className="text-xl font-semibold tracking-tight">
+                    Agent
+                  </span> */}
                 </motion.button>
                 <div className="flex items-center gap-4">
                 
@@ -471,17 +475,27 @@ export function Thread() {
               footer={
                 <div className="sticky bottom-0 flex flex-col items-center gap-5 bg-white">
                   {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      {/* <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
-                        PKPM
-                      </h1> */}
-                      <LangGraphLogoSVG className="h-10 flex-shrink-0" />
-                      <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
-                        Agent
-                      </h1>
+                    <div className="flex flex-row items-center mb-4 gap-3">
+                      <div className="flex items-center flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                          <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
+                            与
+                          </h1>
+                          <h1 className="text-[rgb(31,154,236)] text-3xl font-bold tracking-tight">
+                            PKPM Agent
+                          </h1>
+                          {/* <LangGraphLogoSVG className="h-10 flex-shrink-0" /> */}
+                          <h1 className="text-gray-700 text-3xl font-bold tracking-tight">
+                            一起协作
+                          </h1>   
+                        </div>
+                        <h1 className="text-gray-700 text-mid font-simibold tracking-tight">                        
+                          模型创建、修改、计算结果查询、CAD绘图...  有需求，尽管说
+                        </h1>
+                      </div>
                     </div>
+                   
                   )}
-
                 
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
@@ -519,8 +533,8 @@ export function Thread() {
                             form?.requestSubmit();
                           }
                         }}
-                        placeholder="模型创建、修改、计算结果查询/绘图...  有需求，尽管说，Shift+Enter换行"
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-3 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        placeholder="Shift+Enter换行"
+                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-10 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-0">
@@ -566,7 +580,7 @@ export function Thread() {
                           <Button
                             key="stop"
                             onClick={() => stream.stop()}
-                            className="ml-auto"
+                            className="ml-auto h-7 px-3 text-sm"
                           >
                             <LoaderCircle className="h-4 w-4 animate-spin" />
                             停止
@@ -574,7 +588,7 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
-                            className="ml-auto shadow-md transition-all"
+                            className="ml-auto shadow-md transition-all h-7 px-3 text-sm"
                             disabled={
                               isLoading ||
                               (!input.trim() && contentBlocks.length === 0)
@@ -590,6 +604,9 @@ export function Thread() {
                   {/* 推荐问题组件 */}
                   {!chatStarted && (
                     <div className="mx-auto mb-0 w-full max-w-3xl">
+                      <h1 className="p-2 text-gray-700 text-mid font-bold tracking-tight mb-1">                        
+                        可以向我提问：
+                      </h1>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-0">
                         {[
                           "获取选中柱子轴压比，绘制直方图",
@@ -600,7 +617,8 @@ export function Thread() {
                           <button
                             key={index}
                             onClick={() => setInput(question)}
-                            className="text-left p-2 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-sm text-gray-500 hover:text-gray-900"
+                            // className="bg-muted relative z-10 mx-auto mb-2 w-full max-w-3xl rounded-2xl shadow-xs transition-all"
+                            className="text-left p-2 rounded-lg border border-gray-200 hover:border-gray-300 bg-muted hover:bg-gray-200 transition-all duration-200 text-sm text-gray-500 hover:text-gray-900"
                           >
                             {question}
                           </button>

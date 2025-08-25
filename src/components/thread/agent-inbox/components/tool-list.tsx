@@ -90,7 +90,7 @@ function ToolList() {
                 <h4 className="font-medium text-sm text-gray-900 group-hover:text-blue-700 transition-colors break-all">
                   {toolName}
                 </h4>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed break-all">
                   {description}
                 </p>
               </div>
@@ -119,7 +119,7 @@ function ToolList() {
                     activeTab === setName ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-50'
                   }`}
                 >
-                  <span className="text-mid text-gray-900 font-simibold"> 
+                  <span className="text-sm text-gray-900 font-medium"> 
                     {setName.split('_')[0]}
                   </span>
                   <span className="text-xs text-gray-500">{setName.split('_')[1]}</span>
@@ -145,13 +145,16 @@ function ToolList() {
       <DialogTrigger asChild>
         <motion.button
           type="button" 
-          className="flex cursor-pointer items-center justify-center space-x-0 px-0 py-1 transition-all duration-200 ease-in-out hover:bg-gray-100"
+          className="flex cursor-pointer items-center justify-center space-x-1 px-0 py-1 transition-all duration-200 ease-in-out hover:bg-gray-100"
           initial={{ scale: 1 }}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
         >
+            <span className="text-mid font-semibold text-gray-600">
+              🛠️
+            </span> 
             <span className="text-sm font-semibold text-gray-600">
-              🛠️ 管理
+              工具管理
             </span> 
           </motion.button>
         {/* <Button variant="outline" className="text-gray-600 border-0 transition-all">

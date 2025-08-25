@@ -220,7 +220,7 @@ export function ModelSelect({
                 ref={buttonRef}
                 type="button" 
                 onClick={toggleDropdown}
-                className="flex cursor-pointer items-center justify-center space-x-2 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
+                className="flex cursor-pointer items-center justify-center space-x-1 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
                 initial={{ scale: 1 }}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
@@ -278,7 +278,7 @@ export function ModelSelect({
                     whileHover={{ backgroundColor: '#f3f4f6' }}
                   >
                     <div className="flex items-center gap-2">
-                      <model.logo width={15} height={15} />
+                      <model.logo width={18} height={18} />
                       <span>{model.name+ ' ' + model.ChineseName}</span>
                     </div>
                   </motion.button>
