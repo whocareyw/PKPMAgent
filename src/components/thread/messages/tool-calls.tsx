@@ -1,71 +1,187 @@
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Copy, CopyCheck } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
 
-
-export default function PicViewer({ base64 }: { base64: string }) {
-  return base64 ? (
-    <img
-  src={base64}
-  style={{ cursor: 'pointer' }}
-  onClick={() => {
-    const win = window.open();
-    if (win) {
-      const doc = win.document;
-      doc.title = 'SVG Image';
-
-      const img = doc.createElement('img');
-      img.src = base64;
-      img.style.maxWidth = '100%';
-      img.style.height = 'auto';
-
-      doc.body.style.margin = '0';
-      doc.body.appendChild(img);
+// 通用的图片复制hook
+function useImageCopy() {
+  const [copied, setCopied] = useState(false);
+  
+  const copyImageToClipboard = async (imageSource: string, isBase64: boolean = false) => {
+    try {
+      // 检查浏览器支持
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        if (isBase64) {
+          const link = document.createElement('a');
+          link.href = imageSource;
+          link.download = 'image.png';
+          link.click();
+        } else {
+          await navigator.clipboard.writeText(imageSource);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
+        return;
+      }
+      
+      let blob: Blob;
+      
+      if (isBase64) {
+        // Base64图片处理 - 使用Canvas方式
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = imageSource;
+        });
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        ctx?.drawImage(img, 0, 0);
+        
+        blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => {
+            resolve(blob!);
+          }, 'image/png');
+        });
+      } else {
+        // HTTP URL图片处理 - 直接fetch
+        const response = await fetch(imageSource);
+        blob = await response.blob();
+      }
+      
+      const item = new ClipboardItem({ [blob.type || 'image/png']: blob });
+      await navigator.clipboard.write([item]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      
+    } catch (error) {
+      // 降级到复制文本
+      try {
+        await navigator.clipboard.writeText(imageSource);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // 静默失败
+      }
     }
-  }}
-/>
-  ) : <p>图片加载失败</p>;
+  };
+  
+  return { copied, copyImageToClipboard };
 }
 
 
-// export default function LocalSvgViewer({ filePath }: { filePath: string }) {
-//   const [svgContent, setSvgContent] = useState('');
+export default function PicViewer({ base64 }: { base64: string }) {
+  const { copied, copyImageToClipboard } = useImageCopy();
 
-//   useEffect(() => {
-//     if ((window as any).electronAPI?.loadSvgContent) {
-//       const content = (window as any).electronAPI.loadSvgContent(filePath);
-//       setSvgContent(content);
-//     }
-//   }, [filePath]);
+  return base64 ? (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <img
+        src={base64}
+        style={{ maxWidth: '100%', height: 'auto' }}
+      />
+      <button
+        onClick={() => copyImageToClipboard(base64, true)}
+        style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          background: 'rgba(0, 0, 0, 0.14)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '6px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: '0.8',
+          transition: 'opacity 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          (e.target as HTMLButtonElement).style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLButtonElement).style.opacity = '0.8';
+        }}
+        title="复制图片到剪贴板"
+      >
+        {copied ? <CopyCheck size={16} className="text-green-500" /> : <Copy size={16} />}
+      </button>
+    </div>
+  ) : <p>图片加载失败</p>;
+}
 
-//   const handleOpenExternally = () => {
-//     if ((window as any).electronAPI?.openFileExternally) {
-//       (window as any).electronAPI.openFileExternally(filePath);
-//     }
-//   };
+export function LocalSvgViewer({ imagePath }: { imagePath: string }) {
+  const { copied, copyImageToClipboard } = useImageCopy();
+  
+  if (!imagePath) {
+    return <p>图片路径无效</p>;
+  }
 
-//   return (
-//     <div className="flex flex-col items-center p-4">
-//       <div
-//         className="border rounded p-2"
-//         style={{ maxHeight: '500px', overflow: 'auto' }}
-//         dangerouslySetInnerHTML={{ __html: svgContent }}
-//       />
-//       <button
-//         onClick={handleOpenExternally}
-//         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-//       >
-//         点击在新窗口中打开 📈
-//       </button>
-//     </div>
-//   );
-// }
+  const port = window.location.port;
+  const encodedPath = encodeURIComponent(imagePath);
+  const httpUrl = `http://localhost:${port}/localfile/${encodedPath}`;
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <img
+        src={httpUrl}
+        alt="Local Image"
+        style={{ 
+          maxWidth: '100%', 
+          height: 'auto'
+        }}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+          target.nextElementSibling?.setAttribute('style', 'display: block;');
+        }}
+      />
+      <button
+        onClick={() => copyImageToClipboard(httpUrl, false)}
+        style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          background: 'rgba(0, 0, 0, 0.14)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '6px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: '0.8',
+          transition: 'opacity 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          (e.target as HTMLButtonElement).style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLButtonElement).style.opacity = '0.8';
+        }}
+        title="复制图片到剪贴板"
+      >
+        {copied ? <CopyCheck size={16} className="text-green-500" /> : <Copy size={16} />}
+      </button>
+      <p style={{ display: 'none', color: '#666', fontSize: '14px' }}>
+        无法显示图片: {imagePath}
+      </p>
+    </div>
+  );
+}
 
 
 
@@ -267,6 +383,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                   {isImage ? (
                     <div className="flex justify-center">
                      <PicViewer base64={String(message.artifact)} />
+                    {/* <LocalSvgViewer imagePath={String(message.content)} />                      */}
                     </div>
                   ) : (
                     isJsonContent ? (

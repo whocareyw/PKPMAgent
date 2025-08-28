@@ -317,7 +317,7 @@ export function ModelSelect({
             >
             <motion.div
                 ref={configRef}
-                className="w-130 bg-white rounded-lg border border-gray-200 shadow-xl"
+                className="w-110 bg-white rounded-lg border border-gray-200 shadow-xl"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -396,7 +396,7 @@ export function ModelSelect({
             <div className="flex items-right gap-2 p-3 border-t">
                 <button                
                     type="button"
-                    className="w-full bg-blue-400 text-white py-1 px-9 rounded-md hover:bg-blue-700 transition-colors"
+                    className="w-full bg-blue-400 text-white py-1 px-2 rounded-md hover:bg-blue-700 transition-colors"
                     onClick={() =>{
                       handleModelSelect(editingModel);
                       handleFinishEditModel(); 
@@ -407,7 +407,7 @@ export function ModelSelect({
 
                  <button                
                     type="button"
-                    className={`w-full text-white py-1 px-9 rounded-md transition-colors ${
+                    className={`w-full text-white py-1 px-2 rounded-md transition-colors ${
                       connectivityStatus === 'success' 
                         ? 'bg-green-400 hover:bg-green-500' 
                         : connectivityStatus === 'error'
@@ -421,18 +421,18 @@ export function ModelSelect({
                     disabled={connectivityStatus === 'checking'}
                 >
                 {connectivityStatus === 'checking' 
-                  ? '检测中⛓️' 
+                  ? '检测连接⛓️' 
                   : connectivityStatus === 'success'
-                  ? '链接成功🔗'
+                  ? '连接成功🔗'
                   : connectivityStatus === 'error'
-                  ? '链接失败⛓️‍💥'
+                  ? '连接失败⛓️‍💥'
                   : '检测连接'
                 }
                 </button>
 
                 <button                
                     type="button"
-                    className="w-full bg-gray-400 text-white py-1 px-9 rounded-md hover:bg-blue-700 transition-colors"
+                    className="w-full bg-gray-400 text-white py-1 px-2 rounded-md hover:bg-blue-700 transition-colors"
                     onClick={() => setConfigDialogOpen(false)}
                 >
                 取消
