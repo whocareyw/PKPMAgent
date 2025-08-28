@@ -55,9 +55,28 @@ function useImageCopy() {
           }, 'image/png');
         });
       } else {
-        // HTTP URL图片处理 - 直接fetch
-        const response = await fetch(imageSource);
-        blob = await response.blob();
+        // HTTP URL图片处理 - 使用Canvas方式避免跨域问题
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = imageSource;
+        });
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        ctx?.drawImage(img, 0, 0);
+        
+        blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => {
+            resolve(blob!);
+          }, 'image/png');
+        });
       }
       
       const item = new ClipboardItem({ [blob.type || 'image/png']: blob });
@@ -66,13 +85,16 @@ function useImageCopy() {
       setTimeout(() => setCopied(false), 2000);
       
     } catch (error) {
+      console.error('复制图片失败:', error);
       // 降级到复制文本
       try {
         await navigator.clipboard.writeText(imageSource);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch {
-        // 静默失败
+      } catch (textError) {
+        console.error('复制文本也失败:', textError);
+        // 显示错误提示
+        alert('复制失败，请手动右键保存图片');
       }
     }
   };
