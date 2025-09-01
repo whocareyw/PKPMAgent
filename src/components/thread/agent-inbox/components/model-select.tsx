@@ -398,8 +398,8 @@ export function ModelSelect({
                     type="button"
                     className="w-full bg-blue-400 text-white py-1 px-2 rounded-md hover:bg-blue-700 transition-colors"
                     onClick={() =>{
+                      handleFinishEditModel();
                       handleModelSelect(editingModel);
-                      handleFinishEditModel(); 
                       setConfigDialogOpen(false)}}
                 >
                 确定启用
