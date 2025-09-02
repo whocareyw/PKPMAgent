@@ -121,24 +121,31 @@ function OpenSurvey() {
 }
 
 
-function OpenGitHubRepo() {
+
+
+function OpenHelp() {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <a
-            href="https://github.com/langchain-ai/agent-chat-ui"
+            href="https://gitee.com/pkpmgh/PKPMAgentRelease"
             target="_blank"
-            className="flex items-center justify-center"
-          >
-            <GitHubSVG
-              width="24"
-              height="24"
-            />
+            className="flex items-center justify-center rounded-md text-white px-1.5 py-1 text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: 'rgb(31, 154, 236)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgb(25, 135, 210)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgb(31, 154, 236)';
+            }}  >
+            说明📝 & 讨论🗨️  
           </a>
         </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>Open GitHub repo</p>
+        <TooltipContent side="bottom">
+          <p>查看帮助文档，在讨论区填写您最希望实现的功能、吐槽最不满意的地方</p>  
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -355,9 +362,9 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <div className="absolute top-5 right-8 flex items-center">
-                <OpenSurvey />
-                {/* <OpenGitHubRepo /> */}
+              <div className="absolute top-3 right-8 flex items-center">
+                {/* <OpenSurvey /> */}
+                <OpenHelp/>
               </div>
             </div>
           )}
@@ -417,8 +424,8 @@ export function Thread() {
                 </TooltipIconButton>             
                  
                 <div className="flex items-center">
-                  <OpenSurvey />
-                  {/* <OpenGitHubRepo /> */}
+                  {/* <OpenSurvey /> */}
+                  <OpenHelp/>
                   {/* //开启新对话 */}
                 </div>  
 
