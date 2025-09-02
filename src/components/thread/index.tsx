@@ -141,7 +141,7 @@ function OpenHelp() {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'rgb(31, 154, 236)';
             }}  >
-            说明📝 & 讨论🗨️  
+            说明文档📝 & 讨论🗨️  
           </a>
         </TooltipTrigger>
         <TooltipContent side="bottom">
@@ -362,7 +362,7 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <div className="absolute top-3 right-8 flex items-center">
+              <div className="absolute top-3 right-5.5 flex items-center">
                 {/* <OpenSurvey /> */}
                 <OpenHelp/>
               </div>
