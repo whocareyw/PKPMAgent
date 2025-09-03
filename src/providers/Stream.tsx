@@ -103,13 +103,19 @@ const StreamSession = ({
   useEffect(() => {
     checkGraphStatus(apiUrl, apiKey).then((ok) => {
       if (!ok) {
-        toast.error("Failed to connect to LangGraph server", {
+        toast.info("🚀Agent正在启动中，请稍等一下~", {
           description: () => (
             <p>
-              Please ensure your graph is running at <code>{apiUrl}</code> and
-              your API key is correctly set (if connecting to a deployed graph).
+              如果长时间没有响应可以尝试重新开启对话框。
             </p>
           ),
+          duration: 10000,
+          richColors: true,
+          closeButton: true,
+        });
+      }
+      else{
+        toast.info("✅Agent已启动，请向我发布任务吧~", {
           duration: 10000,
           richColors: true,
           closeButton: true,
