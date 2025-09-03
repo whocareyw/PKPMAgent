@@ -123,7 +123,7 @@ export function ModelSelect({
   const [selectedModel, setSelectedModel] = useState(availableModels[0]);
   const [editingModel, setEditingModel] = useState(availableModels[0]);
   const [connectivityStatus, setConnectivityStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
-  const handleFinishEditModel = () => {
+  const handleFinishEditModel = async () => {
     const modelIndex = availableModels.findIndex((m) => m.name === editingModel.name);
     if (modelIndex !== -1) {
       availableModels[modelIndex] = editingModel;
@@ -131,7 +131,7 @@ export function ModelSelect({
         setSelectedModel(editingModel);
       }
       setAvailableModels([...availableModels]);
-      setModelConfigToLocal();
+      await setModelConfigToLocal();
     }     
   };
   const handleCheckModelConnectivity = async () => {
@@ -183,12 +183,12 @@ export function ModelSelect({
   };
 
   // 模型变化时触发
-  const handleModelSelect = (model: ModelConfigEx) => {
+  const handleModelSelect = async (model: ModelConfigEx) => {
     if (onModelChange) {
       onModelChange(model);
     } 
     setSelectedModel(model);    
-    setCurrentModel(model.name);
+    await setCurrentModel(model.name);
     setModelDropdownOpen(false);
   };
 
@@ -397,9 +397,9 @@ export function ModelSelect({
                 <button                
                     type="button"
                     className="w-full bg-blue-400 text-white py-1 px-2 rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={() =>{
-                      handleFinishEditModel();
-                      handleModelSelect(editingModel);
+                    onClick={async () =>{
+                      await handleFinishEditModel();
+                      await handleModelSelect(editingModel);
                       setConfigDialogOpen(false)}}
                 >
                 确定启用
