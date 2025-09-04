@@ -16,22 +16,26 @@ function ToolList() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const fetchTools = async () => {
-      const toolsResponse = await getTools();
-      if (toolsResponse.error) {
-        setError(toolsResponse.error);
-        return;
-      }
-      setToolSets(toolsResponse.data || null);
-      if (toolsResponse.data) {
-        const firstKey = Object.keys(toolsResponse.data)[0];
-        if (firstKey) {
-          setActiveTab(firstKey);
+    if (open) {
+      const fetchTools = async () => {
+        setToolSets(null); // 重置工具集，显示加载状态
+        const toolsResponse = await getTools();
+        console.log('获取工具组成功');
+        if (toolsResponse.error) {
+          setError(toolsResponse.error);
+          return;
         }
-      }
-    };
-    fetchTools();
-  }, []);
+        setToolSets(toolsResponse.data || null);
+        if (toolsResponse.data) {
+          const firstKey = Object.keys(toolsResponse.data)[0];
+          if (firstKey) {
+            setActiveTab(firstKey);
+          }
+        }
+      };
+      fetchTools();
+    }
+  }, [open]);
 
   useEffect(() => {
     const fetchEnabled = async () => {
