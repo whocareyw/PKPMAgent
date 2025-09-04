@@ -20,7 +20,7 @@ function ToolList() {
       const fetchTools = async () => {
         setToolSets(null); // 重置工具集，显示加载状态
         const toolsResponse = await getTools();
-        console.log('获取工具组成功');
+        // console.log('获取工具组成功');
         if (toolsResponse.error) {
           setError(toolsResponse.error);
           return;
