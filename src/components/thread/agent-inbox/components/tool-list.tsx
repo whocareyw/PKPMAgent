@@ -85,16 +85,16 @@ function ToolList() {
   };
 
   const renderToolsForSet = (tools: Record<string, string>) => (
-    <ScrollArea className="h-[452px] w-flex pr-0">
+    <ScrollArea className="h-[387px] w-flex pr-0">
       <div className="space-y-2">
         {Object.entries(tools).map(([toolName, description]) => (
-          <div key={toolName} className="group p-2 rounded-lg border border-gray-200 bg-gray-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
+          <div key={toolName} className="group p-1.5 rounded-md border border-gray-150 bg-gray-50 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-600 transition-all duration-200 ">
             <div className="flex items-start gap-0">
               <div className="flex-1">
-                <h4 className="font-medium text-sm text-gray-900 group-hover:text-blue-700 transition-colors break-all">
+                <p className="text-sm text-gray-900 group-hover:text-blue-600 transition-colors break-all">
                   {toolName}
-                </h4>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed break-all">
+                </p>
+                <p className="text-xs text-gray-600 mt-0 leading-relaxed break-all">
                   {description}
                 </p>
               </div>
@@ -109,9 +109,9 @@ function ToolList() {
     <div className="w-full">
       <div className="flex gap-2">
         <div className="w-fit flex-shrink-0">
-          <div className="flex flex-col h-auto p-1 w-fit gap-2 bg-gray-100 border border-gray-200 rounded-md">
+          <div className="flex flex-col h-auto p-0 w-fit gap-0 bg-gray-50 border border-gray-150 rounded-md">
             {Object.entries(toolSets || {}).map(([setName, tools]) => (
-              <div key={setName} className="flex items-center gap-2 text-sm px-1 py-1 w-full">
+              <div key={setName} className="flex items-center gap-1 text-sm px-1 py-1 w-full">
                 <Switch 
                    checked={enabledSets[setName] || false}
                    onCheckedChange={(checked) => handleSetToggle(setName, checked as boolean)}
@@ -119,11 +119,11 @@ function ToolList() {
                  />
                 <div 
                   onClick={() => setActiveTab(setName)}
-                  className={`flex-1 text-left flex flex-col gap-1 justify-start h-auto py-1 cursor-pointer rounded px-1 transition-colors ${
-                    activeTab === setName ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-50'
+                  className={`flex-1 text-left flex flex-col gap-0 justify-start h-auto py-0.5 cursor-pointer rounded px-2 transition-colors ${
+                    activeTab === setName ? 'bg-blue-100 border border-blue-150' : 'hover:bg-gray-150'
                   }`}
                 >
-                  <span className="text-sm text-gray-900 font-medium"> 
+                  <span className="text-sm text-gray-900"> 
                     {setName.split('_')[0]}
                   </span>
                   <span className="text-xs text-gray-500">{setName.split('_')[1]}</span>
@@ -165,10 +165,10 @@ function ToolList() {
           
         </Button> */}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[200vh]">
+      <DialogContent className="sm:max-w-[500px] max-h-[150vh]">
         <DialogHeader className="pb-0">
-          <DialogTitle className="text-xl font-bold  flex items-center gap-2">
-            🛠️ 工具管理 ：管理 PKPMMcp 工具集
+          <DialogTitle className="text-mid font-bold  flex items-center gap-2">
+            🛠️ 工具管理 ：管理 PKPMMCP 工具集
           </DialogTitle>          
         </DialogHeader>
         {error ? (
@@ -185,18 +185,21 @@ function ToolList() {
           toolContent
         )
         }
-        <div className="mt-0 pt-3 border-t border-gray-200">
-          <div className="flex items-center justify-between gap-4">
+        <div className="mt-0 -mb-2 pt-3 border-t border-gray-200">
+          <div className="flex items-center justify-between gap-1">
+            <p className="text-xl text-gray-600 text-left">
+                ✨      
+            </p>
             <div className="flex-1">
-              <p className="text-mid text-gray-600 text-left">
+              {/* <p className="text-sm text-gray-600 text-left">
                 💡 使用左侧开关可以控制是否启用工具组          
-              </p>
-              <p className="text-mid text-gray-600 text-left">
-                ✨ 明确场景，只启用必要的工具组可以提高执行的效率与准确性，并大幅降低Token消耗。
+              </p> */}
+              <p className="text-sm text-gray-600 text-left">
+                只启用必要的工具组可以提高效率与准确性，大幅降低Token消耗。
               </p>
             </div>
-            <div className="flex-shrink-0">
-              <Button onClick={handleConfirm} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <div className="flex-shrink-0 ml-4">
+              <Button onClick={handleConfirm} className="bg-[rgb(31,154,236)] hover:bg-blue-600 text-white">
                 确定
               </Button>
             </div>
