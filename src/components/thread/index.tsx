@@ -284,13 +284,9 @@ export function Thread() {
     setFirstTokenReceived(false);
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
-<<<<<<< HEAD
-      streamMode: ['updates', 'messages'],
-=======
       streamMode: ["values"],
       streamSubgraphs: true,
       streamResumable: true,
->>>>>>> upstream/main
     });
   };
 
