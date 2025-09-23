@@ -22,7 +22,6 @@ import {
   SquarePen,
   XIcon,
   Plus,
-  CircleX,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -172,7 +171,7 @@ export function Thread() {
     handleFileUpload,
     dropRef,
     removeBlock,
-    resetBlocks,
+    resetBlocks: _resetBlocks,
     dragOver,
     handlePaste,
   } = useFileUpload();
@@ -258,7 +257,9 @@ export function Thread() {
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
       {
-        streamMode: ['updates', 'messages'],
+        streamMode: ["values"],
+        streamSubgraphs: true,
+        streamResumable: true,
         optimisticValues: (prev) => ({
           ...prev,
           context,
@@ -283,7 +284,13 @@ export function Thread() {
     setFirstTokenReceived(false);
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
+<<<<<<< HEAD
       streamMode: ['updates', 'messages'],
+=======
+      streamMode: ["values"],
+      streamSubgraphs: true,
+      streamResumable: true,
+>>>>>>> upstream/main
     });
   };
 
