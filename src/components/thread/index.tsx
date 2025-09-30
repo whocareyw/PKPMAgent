@@ -259,7 +259,7 @@ export function Thread() {
       {
         streamMode: ['updates', 'messages'],
         streamSubgraphs: true,
-        streamResumable: true,
+        // streamResumable: true,
         optimisticValues: (prev) => ({
           ...prev,
           context,
@@ -286,7 +286,7 @@ export function Thread() {
       checkpoint: parentCheckpoint,
       streamMode: ['updates', 'messages'],
       streamSubgraphs: true,
-      streamResumable: true,
+      // streamResumable: true,
     });
   };
 
