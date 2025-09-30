@@ -18,8 +18,8 @@ importers:
         specifier: ^0.4.9
         version: 0.4.9(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod-to-json-schema@3.24.6(zod@3.25.76))
       '@langchain/langgraph-sdk':
-        specifier: ^0.0.105
-        version: 0.0.105(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^0.1.7
+        version: 0.1.7(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@langchain/openai':
         specifier: ^0.6.13
         version: 0.6.13(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(ws@8.18.2)
@@ -72,8 +72,8 @@ importers:
         specifier: ^0.16.22
         version: 0.16.22
       langgraph-nextjs-api-passthrough:
-        specifier: ^0.0.4
-        version: 0.0.4(next@15.5.4(@playwright/test@1.52.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+        specifier: ^0.1.4
+        version: 0.1.4(next@15.5.4(@playwright/test@1.52.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -611,20 +611,6 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.31 <0.4.0 || ^1.0.0-alpha'
-
-  '@langchain/langgraph-sdk@0.0.105':
-    resolution: {integrity: sha512-3DD1W1wnbP48807qq+5gY248mFcwwNGqKdmZt05P3zeLpfP5Sfm6ELzVvqHGpr+qumP0yGRZs/7qArYGXRRfcQ==}
-    peerDependencies:
-      '@langchain/core': '>=0.2.31 <0.4.0'
-      react: ^18 || ^19
-      react-dom: ^18 || ^19
-    peerDependenciesMeta:
-      '@langchain/core':
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
 
   '@langchain/langgraph-sdk@0.1.7':
     resolution: {integrity: sha512-VVQpJQPrzlCLjDqz38dD9qBvG+5bbojoGgP5YMCJKY0RPolw+JE7I/o8cIjAxgvf0NH6U1cfbNJIF2L/0Cfq5Q==}
@@ -2439,8 +2425,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  langgraph-nextjs-api-passthrough@0.0.4:
-    resolution: {integrity: sha512-Hhey2o7/hvbvr4t8qT+w/5YT2L6m381RJ1K6mBQPJt+W2fJJ1youS3EEtVkAHQDJcn1cdCccOc0GTPsqT6F9IQ==}
+  langgraph-nextjs-api-passthrough@0.1.4:
+    resolution: {integrity: sha512-qGjHs8AnyP5XxxparmqkW4H6fHLjAgveCQnKzpBg0QhgyCc5wbGXmjCsh6eMgZ0meT+WS2oy31kNlt7OwPqSig==}
     peerDependencies:
       next: '*'
 
@@ -3946,17 +3932,6 @@ snapshots:
     dependencies:
       '@langchain/core': 0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76))
       uuid: 10.0.0
-
-  '@langchain/langgraph-sdk@0.0.105(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
-    dependencies:
-      '@types/json-schema': 7.0.15
-      p-queue: 6.6.2
-      p-retry: 4.6.2
-      uuid: 9.0.1
-    optionalDependencies:
-      '@langchain/core': 0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76))
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
 
   '@langchain/langgraph-sdk@0.1.7(@langchain/core@0.3.77(openai@5.12.2(ws@8.18.2)(zod@3.25.76)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
@@ -5897,7 +5872,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  langgraph-nextjs-api-passthrough@0.0.4(next@15.5.4(@playwright/test@1.52.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
+  langgraph-nextjs-api-passthrough@0.1.4(next@15.5.4(@playwright/test@1.52.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
     dependencies:
       next: 15.5.4(@playwright/test@1.52.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
 
