@@ -47,6 +47,7 @@ import {
 } from "./artifact";
 import { ModelSelect } from "./agent-inbox/components/model-select";
 import ToolList from "./agent-inbox/components/tool-list";
+import { ImagePreview, useImagePreview } from "./ImagePreview";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -154,6 +155,7 @@ function OpenHelp() {
 export function Thread() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
+  const { isOpen: isPreviewOpen, imageSrc, imageAlt, openPreview, closePreview } = useImagePreview();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
@@ -183,6 +185,20 @@ export function Thread() {
   const isLoading = stream.isLoading;
 
   const lastError = useRef<string | undefined>(undefined);
+
+  // 监听图片预览事件
+  useEffect(() => {
+    const handleImagePreview = (event: CustomEvent) => {
+      const { src, alt } = event.detail;
+      openPreview(src, alt);
+    };
+
+    window.addEventListener("openImagePreview", handleImagePreview as EventListener);
+
+    return () => {
+      window.removeEventListener("openImagePreview", handleImagePreview as EventListener);
+    };
+  }, [openPreview]);
 
   const setThreadId = (id: string | null) => {
     _setThreadId(id);
@@ -658,6 +674,14 @@ export function Thread() {
           </div>
         </div>
       </div>
+
+      {/* 图片预览组件 */}
+      <ImagePreview
+        src={imageSrc}
+        alt={imageAlt}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+      />
     </div>
   );
 }

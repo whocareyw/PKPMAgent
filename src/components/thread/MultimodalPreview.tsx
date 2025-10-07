@@ -1,5 +1,5 @@
 import React from "react";
-import { File, Image as ImageIcon, X as XIcon } from "lucide-react";
+import { File, Image as ImageIcon, X as XIcon, ZoomIn } from "lucide-react";
 import type { Base64ContentBlock } from "@langchain/core/messages";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -9,6 +9,7 @@ export interface MultimodalPreviewProps {
   onRemove?: () => void;
   className?: string;
   size?: "sm" | "md" | "lg";
+  enablePreview?: boolean;
 }
 
 export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
@@ -17,6 +18,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
   onRemove,
   className,
   size = "md",
+  enablePreview = true,
 }) => {
   // Image block
   if (
@@ -29,20 +31,44 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
     let imgClass: string = "rounded-md object-cover h-16 w-16 text-lg";
     if (size === "sm") imgClass = "rounded-md object-cover h-10 w-10 text-base";
     if (size === "lg") imgClass = "rounded-md object-cover h-24 w-24 text-xl";
+    const handleImageClick = () => {
+      if (enablePreview) {
+        // 打开图片预览
+        const event = new CustomEvent("openImagePreview", {
+          detail: { src: url, alt: String(block.metadata?.name || "uploaded image") }
+        });
+        window.dispatchEvent(event);
+      }
+    };
+
     return (
-      <div className={cn("relative inline-block", className)}>
-        <Image
-          src={url}
-          alt={String(block.metadata?.name || "uploaded image")}
-          className={imgClass}
-          width={size === "sm" ? 16 : size === "md" ? 32 : 48}
-          height={size === "sm" ? 16 : size === "md" ? 32 : 48}
-        />
+      <div className={cn("relative inline-block group", className)}>
+        <div
+          className={cn("relative cursor-pointer transition-transform hover:scale-105", enablePreview && "hover:opacity-90")}
+          onClick={handleImageClick}
+          title={enablePreview ? "点击放大查看" : undefined}
+        >
+          <Image
+            src={url}
+            alt={String(block.metadata?.name || "uploaded image")}
+            className={imgClass}
+            width={size === "sm" ? 16 : size === "md" ? 32 : 48}
+            height={size === "sm" ? 16 : size === "md" ? 32 : 48}
+          />
+          {enablePreview && (
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-md flex items-center justify-center">
+              <ZoomIn className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          )}
+        </div>
         {removable && (
           <button
             type="button"
             className="absolute top-1 right-1 z-10 rounded-full bg-gray-500 text-white hover:bg-gray-700"
-            onClick={onRemove}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove?.();
+            }}
             aria-label="Remove image"
           >
             <XIcon className="h-4 w-4" />
