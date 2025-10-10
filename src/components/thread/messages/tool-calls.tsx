@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Copy, CopyCheck } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
+
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
@@ -157,19 +160,21 @@ export function LocalSvgViewer({ imagePath }: { imagePath: string }) {
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      <img
-        src={httpUrl}
-        alt="Local Image"
-        style={{ 
-          maxWidth: '100%', 
-          height: 'auto'
-        }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.style.display = 'none';
-          target.nextElementSibling?.setAttribute('style', 'display: block;');
-        }}
-      />
+      <Zoom>
+        <img
+          src={httpUrl}
+          alt="Local Image"
+          style={{ 
+            maxWidth: '100%', 
+            height: 'auto'
+          }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.parentElement!.style.display = 'none';
+            target.closest('div')!.querySelector('p')!.style.display = 'block';
+          }}
+        />
+      </Zoom>
       <button
         onClick={() => copyImageToClipboard(httpUrl, false)}
         style={{
