@@ -1,10 +1,10 @@
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { ContentBlock } from "@langchain/core/messages";
 import { toast } from "sonner";
 
 // Returns a Promise of a typed multimodal block for images or PDFs
 export async function fileToContentBlock(
   file: File,
-): Promise<Base64ContentBlock> {
+): Promise<ContentBlock.Multimodal.Data> {
   const supportedImageTypes = [
     "image/jpeg",
     "image/png",
@@ -26,6 +26,8 @@ export async function fileToContentBlock(
     return {
       type: "image",
       source_type: "base64",
+      mimeType: file.type,
+      // Some LangGraph servers expect snake_case key `mime_type`
       mime_type: file.type,
       data,
       metadata: { name: file.name },
@@ -36,6 +38,8 @@ export async function fileToContentBlock(
   return {
     type: "file",
     source_type: "base64",
+    mimeType: "application/pdf",
+    // Duplicate snake_case for compatibility with server validators
     mime_type: "application/pdf",
     data,
     metadata: { filename: file.name },
@@ -56,10 +60,10 @@ export async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-// Type guard for Base64ContentBlock
+// Type guard for ContentBlock.Multimodal.Data
 export function isBase64ContentBlock(
   block: unknown,
-): block is Base64ContentBlock {
+): block is ContentBlock.Multimodal.Data {
   if (typeof block !== "object" || block === null || !("type" in block))
     return false;
   // file type (legacy)
@@ -67,10 +71,10 @@ export function isBase64ContentBlock(
     (block as { type: unknown }).type === "file" &&
     "source_type" in block &&
     (block as { source_type: unknown }).source_type === "base64" &&
-    "mime_type" in block &&
-    typeof (block as { mime_type?: unknown }).mime_type === "string" &&
-    ((block as { mime_type: string }).mime_type.startsWith("image/") ||
-      (block as { mime_type: string }).mime_type === "application/pdf")
+    "mimeType" in block &&
+    typeof (block as { mimeType?: unknown }).mimeType === "string" &&
+    ((block as { mimeType: string }).mimeType.startsWith("image/") ||
+      (block as { mimeType: string }).mimeType === "application/pdf")
   ) {
     return true;
   }
@@ -79,9 +83,9 @@ export function isBase64ContentBlock(
     (block as { type: unknown }).type === "image" &&
     "source_type" in block &&
     (block as { source_type: unknown }).source_type === "base64" &&
-    "mime_type" in block &&
-    typeof (block as { mime_type?: unknown }).mime_type === "string" &&
-    (block as { mime_type: string }).mime_type.startsWith("image/")
+    "mimeType" in block &&
+    typeof (block as { mimeType?: unknown }).mimeType === "string" &&
+    (block as { mimeType: string }).mimeType.startsWith("image/")
   ) {
     return true;
   }

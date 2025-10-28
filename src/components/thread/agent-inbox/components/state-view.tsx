@@ -8,7 +8,7 @@ import {
 } from "../utils";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { BaseMessage } from "@langchain/core/messages";
+import { BaseMessage, AIMessage, HumanMessage, SystemMessage, ToolMessage } from "@langchain/core/messages";
 import { ToolCall } from "@langchain/core/messages/tool";
 import { ToolCallTable } from "./tool-call-table";
 import { Button } from "@/components/ui/button";
@@ -20,21 +20,22 @@ interface StateViewRecursiveProps {
 }
 
 const messageTypeToLabel = (message: BaseMessage) => {
-  let type = "";
-  if ("type" in message) {
-    type = message.type as string;
-  } else {
-    type = message._getType();
-  }
+  // 优先使用类型守卫，避免依赖已弃用的 getType/_getType
+  if (HumanMessage.isInstance(message)) return "User";
+  if (AIMessage.isInstance(message)) return "Assistant";
+  if (ToolMessage.isInstance(message)) return "Tool";
+  if (SystemMessage.isInstance(message)) return "System";
 
-  switch (type) {
+  // 退化到读取公开字段 `type`（兼容序列化的普通对象）
+  const type = (message as any)?.type ?? "";
+  switch (String(type).toLowerCase()) {
     case "human":
       return "User";
     case "ai":
       return "Assistant";
     case "tool":
       return "Tool";
-    case "System":
+    case "system":
       return "System";
     default:
       return "";
