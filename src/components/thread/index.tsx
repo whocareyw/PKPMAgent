@@ -252,7 +252,7 @@ export function Thread() {
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
 
     const context =
-      Object.keys(artifactContext).length > 0 ? artifactContext : {};
+      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
 
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
@@ -282,7 +282,7 @@ export function Thread() {
     // Do this so the loading state is correct
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
-    stream.submit({}, {
+    stream.submit(undefined, {
       checkpoint: parentCheckpoint,
       streamMode: ['updates', 'messages'],
       streamSubgraphs: true,
