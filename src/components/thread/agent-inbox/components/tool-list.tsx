@@ -7,6 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Wrench, Zap, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function ToolList() {
   const [toolSets, setToolSets] = useState<Record<string, Record<string, string>> | null>(null);
@@ -158,7 +164,7 @@ function ToolList() {
               🛠️
             </span> 
             <span className="text-sm font-semibold text-gray-600">
-              工具管理
+              技能管理
             </span> 
           </motion.button>
         {/* <Button variant="outline" className="text-gray-600 border-0 transition-all">
@@ -168,7 +174,7 @@ function ToolList() {
       <DialogContent className="sm:max-w-[500px] max-h-[150vh]">
         <DialogHeader className="pb-0">
           <DialogTitle className="text-mid font-bold  flex items-center gap-2">
-            🛠️ 工具管理 ：管理 PKPMMCP 工具集
+            🛠️ 为 PKPMAgent 开启/关闭 技能(Tools)
           </DialogTitle>          
         </DialogHeader>
         {error ? (
@@ -195,7 +201,7 @@ function ToolList() {
                 💡 使用左侧开关可以控制是否启用工具组          
               </p> */}
               <p className="text-sm text-gray-600 text-left">
-                只启用必要的工具组可以提高效率与准确性，大幅降低Token消耗。
+                只启用必要的工具(Tools)可以提高效率与准确性，大幅降低Token消耗。
               </p>
             </div>
             <div className="flex-shrink-0 ml-4">
@@ -212,3 +218,73 @@ function ToolList() {
 }
 
 export default ToolList;
+
+
+
+// // 初次加载时获取已启用的工具组，用于 Tooltip 展示
+// useEffect(() => {
+//   const fetchInitialEnabled = async () => {
+//     const enabledResponse = await getEnabledToolsSet();
+//     if (enabledResponse.error) {
+//       // 初次加载失败则保持为空即可
+//       return;
+//     }
+//     const enabledList = enabledResponse.data?.enabled_tools_set || [];
+//     const initialEnabled: Record<string, boolean> = {};
+//     enabledList.forEach((name) => {
+//       initialEnabled[name] = true;
+//     });
+//     setEnabledSets(initialEnabled);
+//   };
+//   fetchInitialEnabled();
+// }, []);
+{/* <TooltipProvider>
+  <Tooltip>
+    <DialogTrigger asChild>
+    <TooltipTrigger asChild>    
+
+      <motion.button
+        type="button" 
+        className="flex cursor-pointer items-center justify-center space-x-1 px-0 py-1 transition-all duration-200 ease-in-out hover:bg-gray-100"
+        initial={{ scale: 1 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+      >
+          <span className="text-mid font-semibold text-gray-600">
+            🛠️
+          </span>
+          <span className="text-sm font-semibold text-gray-600">
+            技能管理
+          </span> 
+        </motion.button>
+  
+    </TooltipTrigger>
+    </DialogTrigger>
+    <TooltipContent side="bottom">
+      {(() => {
+        const enabledGroupNames = Object.entries(enabledSets)
+          .filter(([, enabled]) => enabled)
+          .map(([name]) => name);
+        if (enabledGroupNames.length === 0) {
+          return (
+            <p className="text-xs">暂无启用的工具组</p>
+          );
+        }
+        return (
+          <div className="max-w-[280px]">                    
+            <div className="flex flex-wrap gap-1">
+              {enabledGroupNames.map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex items-center rounded-md bg-gray-50 px-2 py-[2px] text-[11px] text-gray-700"
+                >
+                  <span>{name.split('_')[0]}</span>                          
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider> */}
