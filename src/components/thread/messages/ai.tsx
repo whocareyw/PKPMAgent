@@ -138,27 +138,35 @@ export function AssistantMessage({
     );    
 
   let isTempToolCall: boolean = false
-  if (!toolCallsHaveContents && 
-    message?.additional_kwargs?.tool_calls && 
-    Array.isArray(message.additional_kwargs.tool_calls) && 
-    message.additional_kwargs.tool_calls.length > 0)
+  if (!toolCallsHaveContents && message && 
+    "tool_call_chunks" in message &&
+    message.tool_call_chunks && 
+    Array.isArray(message.tool_call_chunks) && 
+    message.tool_call_chunks.length > 1)
     { 
       isTempToolCall = true; 
     }
 
-  if (isTempToolCall && message?.additional_kwargs?.tool_calls && "tool_calls" in message ) {
-    message.tool_calls = (message.tool_calls || []).map((tc, index) => {
-      const additionalTc = message.additional_kwargs?.tool_calls && Array.isArray(message.additional_kwargs.tool_calls) ? message.additional_kwargs.tool_calls[index] : undefined;
-      if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
-        return {
-          ...tc,
-          args: {
-            Info: additionalTc.function.arguments
-          }
-        };
-      }
-      return tc;
-    });
+  if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
+    if( Array.isArray(message.tool_calls) && message.tool_calls?.length > 0 &&
+    Array.isArray(message.tool_call_chunks) && message.tool_call_chunks.length > 1) 
+    {
+      message.tool_calls[0].name = message.tool_call_chunks[0].name
+      message.tool_calls[0].args = [message.tool_call_chunks[1].args]
+      console.log(message.tool_call_chunks[message.tool_call_chunks.length-1].args)
+    }    
+    // = (message.tool_calls || []).map((tc, index) => {
+    //   const additionalTc = Array.isArray(message.tool_call_chunks) ? message.tool_call_chunks[index] : undefined;
+    //   if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
+    //     return {
+    //       ...tc,
+    //       args: {
+    //         Info: additionalTc.function.arguments
+    //       }
+    //     };
+    //   }
+    //   return tc;
+    // });
   }
 
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
