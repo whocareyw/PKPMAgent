@@ -267,3 +267,67 @@ export async function getEnabledToolsSet(): Promise<ApiResponse<{ enabled_tools_
   }
 }
 
+// 设置自动选择模式是否开启
+export async function setAutoToolsSelectionMode(enabled: boolean): Promise<ApiResponse<{ message: string }>> {
+  try {
+    // FastAPI 对简单类型参数默认走 query，所以这里用 query 传递
+    const response = await fetch(`${getBaseUrl()}/set_auto_tools_selection_mode?enabled=${encodeURIComponent(String(enabled))}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 获取自动选择模式是否开启
+export async function getAutoToolsSelectionMode(): Promise<ApiResponse<{ selection_mode: boolean }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_auto_tools_selection_mode`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    const selectionMode = typeof data.tool_auto_select === 'boolean'
+      ? data.tool_auto_select
+      : typeof data.selection_mode === 'boolean'
+        ? data.selection_mode
+        : false;
+    return { data: { selection_mode: selectionMode } };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+
+

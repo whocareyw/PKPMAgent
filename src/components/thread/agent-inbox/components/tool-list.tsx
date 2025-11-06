@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { getTools, setEnabledToolsSet, getEnabledToolsSet } from '@/lib/model-config-api';
+import { useState, useEffect, useRef } from 'react';
+import { getTools, setEnabledToolsSet, getEnabledToolsSet, getAutoToolsSelectionMode, setAutoToolsSelectionMode } from '@/lib/model-config-api';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Wrench, Zap, Settings } from 'lucide-react';
+import { Wrench, Zap, Settings, ChevronUp, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
   Tooltip,
@@ -20,6 +20,10 @@ function ToolList() {
   const [enabledSets, setEnabledSets] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<string>('');
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [autoMode, setAutoMode] = useState<boolean>(true);
+  const dropdownRef = useRef<HTMLDivElement>(null);  
+  const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('down');
 
   useEffect(() => {
     if (open) {
@@ -67,6 +71,28 @@ function ToolList() {
     fetchEnabled();
   }, [open, toolSets]);
 
+  // 初始化自动模式状态
+  useEffect(() => {
+    const initAutoMode = async () => {
+      const res = await getAutoToolsSelectionMode();
+      if (res.data && typeof res.data.selection_mode === 'boolean') {
+        setAutoMode(res.data.selection_mode);
+      }
+    };
+    initAutoMode();
+  }, []);
+
+  // 点击外部区域时关闭下拉菜单
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const handleSetToggle = (setName: string, checked: boolean) => {
     setEnabledSets(prev => ({
       ...prev,
@@ -88,6 +114,33 @@ function ToolList() {
       // 这里可以添加成功提示
     }
     setOpen(false);
+  };
+
+  const handleSelectAutoMode = async () => {
+    setAutoMode(true);
+    setMenuOpen(false);
+    const res = await setAutoToolsSelectionMode(true);
+    if (res.error) {
+      console.warn('设置自动模式失败:', res.error);
+    }
+  };
+
+  const handleSelectManualMode = async () => {
+    setAutoMode(false);
+    setMenuOpen(false);
+    const res = await setAutoToolsSelectionMode(false);
+    if (res.error) {
+      console.warn('关闭自动模式失败:', res.error);
+    }
+  };
+
+  const handleOpenSkillsDialog = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    setMenuOpen(false);
+    setOpen(true);
   };
 
   const renderToolsForSet = (tools: Record<string, string>) => (
@@ -149,28 +202,104 @@ function ToolList() {
       </div>
     </div>
   );
+  
+  // 计算下拉菜单展开方向
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const calculateDropdownDirection = () => {
+    if (!buttonRef.current) return 'down';
+    
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownHeight = 200; // 估算下拉菜单高度
+    
+    const spaceBelow = viewportHeight - buttonRect.bottom;
+    const spaceAbove = buttonRect.top;
+    
+    // 如果下方空间不足且上方空间充足，则向上展开
+    if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+      return 'up';
+    }    
+    return 'down';
+  };
+
+  
+  const toggleDropdown = () => {
+    if (!menuOpen) {
+      // 在打开下拉菜单前计算展开方向
+      const direction = calculateDropdownDirection();
+      // console.log(direction)
+      setDropdownDirection(direction);
+    }
+    setMenuOpen(!menuOpen);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <motion.button
-          type="button" 
-          className="flex cursor-pointer items-center justify-center space-x-1 px-0 py-1 transition-all duration-200 ease-in-out hover:bg-gray-100"
+      {/* 下拉触发器：替换原先的 DialogTrigger 按钮 */}
+      <div ref={dropdownRef} className="relative inline-block">
+        <motion.button        
+          ref={buttonRef}
+          type="button"
+          onClick={toggleDropdown}
+          className="flex cursor-pointer items-center justify-center space-x-1 px-2 py-1 text-gray-700 transition-all duration-200 ease-in-out hover:bg-gray-100"
           initial={{ scale: 1 }}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
         >
-            <span className="text-mid font-semibold text-gray-600">
-              🛠️
-            </span> 
-            <span className="text-sm font-semibold text-gray-600">
-              技能管理
-            </span> 
-          </motion.button>
-        {/* <Button variant="outline" className="text-gray-600 border-0 transition-all">
-          
-        </Button> */}
-      </DialogTrigger>
+          {/* <span className="text-mid"></span> */}
+          <span className="text-sm font-semibold text-gray-600">
+            {autoMode ? '技能: 🔄Auto' : '技能: 🛠️自选'}
+          </span>
+          <div className="w-4 h-4">
+              {menuOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </div>
+        </motion.button>
+        {menuOpen && (
+            <motion.div
+              className={`absolute ${dropdownDirection === 'up' ? 'bottom-full mb-4' : 'top-full mt-4'} -left-2 z-50 w-65 overflow-hidden rounded-lg border border-gray-200 bg-white`}
+              initial={{ 
+                opacity: 0, 
+                y: dropdownDirection === 'up' ? 10 : -10, 
+                scale: 0.95 
+              }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ 
+                opacity: 0, 
+                y: dropdownDirection === 'up' ? 10 : -10, 
+                scale: 0.95 
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* <div className="flex items-center group relative"> */}
+                <button
+                  className={`flex-1 px-4 py-2 text-left text-sm transition-colors hover:bg-gray-200 ${
+                        autoMode ? 'text-black font-bold' : 'text-gray-600'}`}
+                  onClick={handleSelectAutoMode}
+                >
+                  <span>🔄Auto:根据任务自动配置技能</span>
+              </button>
+              {/* </div> */}
+              <div className="flex items-center group relative">
+                <button  
+                  className={`flex-1 px-4 py-2 text-left text-sm transition-colors hover:bg-gray-200 ${
+                      !autoMode ? 'text-black font-bold' : 'text-gray-600'}`}
+                  onClick={handleSelectManualMode}>
+                  🛠️自选:手动配置技能(Tool)
+                </button>                
+                <motion.button
+                      type="button"
+                      onClick={handleOpenSkillsDialog}
+                      className="px-2 py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{ opacity: 1 }}
+                    >
+                      ⚙️
+                </motion.button>   
+            </div>
+          </motion.div>
+        )}
+      </div>
       <DialogContent className="sm:max-w-[500px] max-h-[150vh]">
         <DialogHeader className="pb-0">
           <DialogTitle className="text-mid font-bold  flex items-center gap-2">
