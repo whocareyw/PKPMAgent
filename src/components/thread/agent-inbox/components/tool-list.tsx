@@ -325,12 +325,9 @@ function ToolList() {
             <p className="text-xl text-gray-600 text-left">
                 ✨      
             </p>
-            <div className="flex-1">
-              {/* <p className="text-sm text-gray-600 text-left">
-                💡 使用左侧开关可以控制是否启用工具组          
-              </p> */}
+            <div className="flex-1">            
               <p className="text-sm text-gray-600 text-left">
-                只启用必要的工具(Tools)可以提高效率与准确性，大幅降低Token消耗。
+                使用左侧开关可以控制是否启用技能组，只启用必要的Tools可以大幅降低Token消耗。
               </p>
             </div>
             <div className="flex-shrink-0 ml-4">
