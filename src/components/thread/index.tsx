@@ -206,7 +206,8 @@ export function Thread() {
 
       // Message is defined, and it has not been logged yet. Save it, and send the error
       lastError.current = message;
-      toast.error("An error occurred. Please try again.", {
+      // toast.error("An error occurred. Please try again.", {
+      toast.info("⚠️抱歉，模型调用异常，请检查 API密钥 是否正确配置，以及账户余额是否充足。👉帮助文档：https://gitee.com/pkpmgh/PKPMAgentRelease", {
         description: (
           <p>
             <strong>Error:</strong> <code>{message}</code>
