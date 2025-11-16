@@ -1,4 +1,4 @@
-import type { ContentBlock } from "@langchain/core/messages";
+import { ContentBlock } from "@langchain/core/messages";
 import { toast } from "sonner";
 
 // Returns a Promise of a typed multimodal block for images or PDFs
@@ -25,10 +25,7 @@ export async function fileToContentBlock(
   if (supportedImageTypes.includes(file.type)) {
     return {
       type: "image",
-      source_type: "base64",
       mimeType: file.type,
-      // Some LangGraph servers expect snake_case key `mime_type`
-      mime_type: file.type,
       data,
       metadata: { name: file.name },
     };
@@ -37,10 +34,7 @@ export async function fileToContentBlock(
   // PDF
   return {
     type: "file",
-    source_type: "base64",
     mimeType: "application/pdf",
-    // Duplicate snake_case for compatibility with server validators
-    mime_type: "application/pdf",
     data,
     metadata: { filename: file.name },
   };
@@ -69,8 +63,6 @@ export function isBase64ContentBlock(
   // file type (legacy)
   if (
     (block as { type: unknown }).type === "file" &&
-    "source_type" in block &&
-    (block as { source_type: unknown }).source_type === "base64" &&
     "mimeType" in block &&
     typeof (block as { mimeType?: unknown }).mimeType === "string" &&
     ((block as { mimeType: string }).mimeType.startsWith("image/") ||
@@ -81,8 +73,6 @@ export function isBase64ContentBlock(
   // image type (new)
   if (
     (block as { type: unknown }).type === "image" &&
-    "source_type" in block &&
-    (block as { source_type: unknown }).source_type === "base64" &&
     "mimeType" in block &&
     typeof (block as { mimeType?: unknown }).mimeType === "string" &&
     (block as { mimeType: string }).mimeType.startsWith("image/")

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { toast } from "sonner";
-import type { ContentBlock } from "@langchain/core/messages";
+import { ContentBlock } from "@langchain/core/messages";
 import { fileToContentBlock } from "@/lib/multimodal-utils";
 
 export const SUPPORTED_FILE_TYPES = [
@@ -12,7 +12,7 @@ export const SUPPORTED_FILE_TYPES = [
 ];
 
 interface UseFileUploadOptions {
-  initialBlocks?: ContentBlock.Multimodal.Data [];
+  initialBlocks?: ContentBlock.Multimodal.Data[];
 }
 
 export function useFileUpload({
