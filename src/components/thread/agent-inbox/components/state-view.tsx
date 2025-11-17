@@ -20,15 +20,14 @@ interface StateViewRecursiveProps {
 }
 
 const messageTypeToLabel = (message: BaseMessage) => {
-  // 优先使用类型守卫，避免依赖已弃用的 getType/_getType
-  if (HumanMessage.isInstance(message)) return "User";
-  if (AIMessage.isInstance(message)) return "Assistant";
-  if (ToolMessage.isInstance(message)) return "Tool";
-  if (SystemMessage.isInstance(message)) return "System";
+  let type = "";
+  if ("type" in message) {
+    type = message.type as string;
+  } else if ("getType" in message) {
+    type = (message as BaseMessage).getType();
+  }
 
-  // 退化到读取公开字段 `type`（兼容序列化的普通对象）
-  const type = (message as any)?.type ?? "";
-  switch (String(type).toLowerCase()) {
+  switch (type) {
     case "human":
       return "User";
     case "ai":
@@ -250,7 +249,7 @@ export function StateView({
   return (
     <div
       className={cn(
-        "flex w-full flex-row gap-0",
+        "flex min-w-full flex-row gap-0",
         view === "state" &&
           "border-t-[1px] border-gray-100 lg:border-t-[0px] lg:border-l-[1px]",
       )}
