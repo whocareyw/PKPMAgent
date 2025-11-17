@@ -23,6 +23,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
   // Image block
   if (
     block.type === "image" &&
+    block.source_type === "base64" &&
     typeof block.mimeType === "string" &&
     block.mimeType.startsWith("image/")
   ) {
@@ -56,7 +57,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
   }
 
   // PDF block
-  if (block.type === "file" && block.mimeType === "application/pdf") {
+  if (block.type === "file" && block.source_type === "base64" && block.mimeType === "application/pdf") {
     const filename =
       block.metadata?.filename || block.metadata?.name || "PDF file";
     return (
