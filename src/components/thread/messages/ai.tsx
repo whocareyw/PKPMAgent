@@ -147,17 +147,17 @@ export function AssistantMessage({
     "tool_call_chunks" in message &&
     message.tool_call_chunks && 
     Array.isArray(message.tool_call_chunks) && 
-    message.tool_call_chunks.length > 1)
+    message.tool_call_chunks.length >= 1)
     { 
       isTempToolCall = true; 
     }
 
   if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
     if( Array.isArray(message.tool_calls) && message.tool_calls?.length > 0 &&
-    Array.isArray(message.tool_call_chunks) && message.tool_call_chunks.length > 1) 
+    Array.isArray(message.tool_call_chunks) && message.tool_call_chunks.length >= 1) 
     {
-      //message.tool_calls[0].name = message.tool_call_chunks[0].name
-      //message.tool_calls[0].args = [message.tool_call_chunks[1].args]
+      message.tool_calls[0].name = message.tool_call_chunks[0].name
+      message.tool_calls[0].args = [message.tool_call_chunks[0].args]
       //console.log(message.tool_call_chunks[message.tool_call_chunks.length-1].args)
     }    
     // = (message.tool_calls || []).map((tc, index) => {
