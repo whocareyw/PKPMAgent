@@ -10,7 +10,7 @@ import { ToolCalls, ToolResult } from "./tool-calls";
 import { TokenUsageSection } from "./TokenUsage";
 import { ThinkingSection } from "./Thinking";
 import { MessageContentComplex } from "@langchain/core/messages";
-import { Fragment } from "react";
+import { Fragment, memo } from "react";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -101,6 +101,52 @@ function Interrupt({
   );
 }
 
+const OptimizedToolCalls = memo(
+  ({
+    toolCalls,
+    isLoading,
+    isTempToolCall,
+  }: {
+    toolCalls: AIMessage["tool_calls"];
+    isLoading: boolean;
+    isTempToolCall?: boolean;
+  }) => {
+    return <ToolCalls toolCalls={toolCalls} isTempToolCall={isTempToolCall} />;
+  },
+  (prevProps, nextProps) => {
+    if (prevProps.isLoading && !nextProps.isLoading) return false;
+    if (!nextProps.isLoading) {
+      return (
+        JSON.stringify(prevProps.toolCalls) ===
+        JSON.stringify(nextProps.toolCalls)
+      );
+    }
+
+    const prevToolCalls = prevProps.toolCalls;
+    const nextToolCalls = nextProps.toolCalls;
+
+    if (!prevToolCalls || !nextToolCalls)
+      return prevToolCalls === nextToolCalls;
+    if (prevToolCalls.length !== nextToolCalls.length) return false;
+
+    const prevFirst = prevToolCalls[0];
+    const nextFirst = nextToolCalls[0];
+
+    if (!prevFirst || !nextFirst) return prevFirst === nextFirst;
+    if (prevFirst.id !== nextFirst.id) return false;
+    if (prevFirst.name !== nextFirst.name) return false;
+
+    const prevArgsStr = JSON.stringify(prevFirst.args);
+    const nextArgsStr = JSON.stringify(nextFirst.args);
+
+    if (Math.abs(nextArgsStr.length - prevArgsStr.length) < 50) {
+      return true;
+    }
+
+    return false;
+  },
+);
+
 export function AssistantMessage({
   message,
   isLoading,
@@ -142,37 +188,37 @@ export function AssistantMessage({
       (tc) => tc.args && Object.keys(tc.args).length > 0,
     );    
 
-  let isTempToolCall: boolean = false
-  if (!toolCallsHaveContents && message && 
-    "tool_call_chunks" in message &&
-    message.tool_call_chunks && 
-    Array.isArray(message.tool_call_chunks) && 
-    message.tool_call_chunks.length >= 1)
-    { 
-      isTempToolCall = true; 
-    }
+  // let isTempToolCall: boolean = false
+  // if (!toolCallsHaveContents && message && 
+  //   "tool_call_chunks" in message &&
+  //   message.tool_call_chunks && 
+  //   Array.isArray(message.tool_call_chunks) && 
+  //   message.tool_call_chunks.length >= 1)
+  //   { 
+  //     isTempToolCall = true; 
+  //   }
 
-  if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
-    if( Array.isArray(message.tool_calls) && message.tool_calls?.length > 0 &&
-    Array.isArray(message.tool_call_chunks) && message.tool_call_chunks.length >= 1) 
-    {
-      message.tool_calls[0].name = message.tool_call_chunks[0].name
-      message.tool_calls[0].args = [message.tool_call_chunks[0].args]
-      //console.log(message.tool_call_chunks[message.tool_call_chunks.length-1].args)
-    }    
-    // = (message.tool_calls || []).map((tc, index) => {
-    //   const additionalTc = Array.isArray(message.tool_call_chunks) ? message.tool_call_chunks[index] : undefined;
-    //   if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
-    //     return {
-    //       ...tc,
-    //       args: {
-    //         Info: additionalTc.function.arguments
-    //       }
-    //     };
-    //   }
-    //   return tc;
-    // });
-  }
+  // if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
+  //   if( Array.isArray(message.tool_calls) && message.tool_calls?.length > 0 &&
+  //   Array.isArray(message.tool_call_chunks) && message.tool_call_chunks.length >= 1) 
+  //   {
+  //     message.tool_calls[0].name = message.tool_call_chunks[0].name
+  //     message.tool_calls[0].args = [message.tool_call_chunks[0].args]
+  //     //console.log(message.tool_call_chunks[message.tool_call_chunks.length-1].args)
+  //   }    
+  //   // = (message.tool_calls || []).map((tc, index) => {
+  //   //   const additionalTc = Array.isArray(message.tool_call_chunks) ? message.tool_call_chunks[index] : undefined;
+  //   //   if (additionalTc?.function?.arguments && typeof additionalTc.function.arguments === 'string') {
+  //   //     return {
+  //   //       ...tc,
+  //   //       args: {
+  //   //         Info: additionalTc.function.arguments
+  //   //       }
+  //   //     };
+  //   //   }
+  //   //   return tc;
+  //   // });
+  // }
 
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
@@ -208,14 +254,16 @@ export function AssistantMessage({
             {!hideToolCalls && (
               <>
                 {(hasToolCalls && toolCallsHaveContents && (
-                  <ToolCalls toolCalls={message.tool_calls} />
+                  <OptimizedToolCalls toolCalls={message.tool_calls} isLoading={isLoading} />
                 )) ||
                   (hasAnthropicToolCalls && (
-                    <ToolCalls toolCalls={anthropicStreamedToolCalls} />
-                  )) ||
-                  (hasToolCalls &&(
-                    <ToolCalls toolCalls={message.tool_calls} isTempToolCall={Boolean(isTempToolCall)} />
-                  ))}
+                    <OptimizedToolCalls toolCalls={anthropicStreamedToolCalls} isLoading={isLoading} />
+                  )) 
+                  // ||
+                  // (hasToolCalls &&(
+                  //   <ToolCalls toolCalls={message.tool_calls} isTempToolCall={Boolean(isTempToolCall)} />
+                  // ))
+                  }
               </>
             )}
 
