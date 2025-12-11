@@ -5,7 +5,27 @@ import { StreamProvider } from "@/providers/Stream";
 import { ThreadProvider } from "@/providers/Thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
-import React from "react";
+import React, { useState } from "react";
+import { Sidebar, TabId } from "@/components/layout/Sidebar";
+import { CodeEditor } from "@/components/CodeEditor";
+import { KnowledgeBase } from "@/components/KnowledgeBase";
+
+function MainLayout() {
+  const [activeTab, setActiveTab] = useState<TabId>("chat");
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <main className="flex-1 h-full overflow-hidden relative">
+        <div className={activeTab === "chat" ? "block h-full w-full" : "hidden"}>
+             <Thread />
+        </div>
+        {activeTab === "editor" && <CodeEditor />}
+        {activeTab === "knowledge" && <KnowledgeBase />}
+      </main>
+    </div>
+  );
+}
 
 export default function DemoPage(): React.ReactNode {
   return (
@@ -14,7 +34,7 @@ export default function DemoPage(): React.ReactNode {
       <ThreadProvider>
         <StreamProvider>
           <ArtifactProvider>
-            <Thread />
+            <MainLayout />
           </ArtifactProvider>
         </StreamProvider>
       </ThreadProvider>
