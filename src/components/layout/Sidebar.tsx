@@ -1,7 +1,8 @@
 import React from "react";
-import { MessageSquare, Code, Database, Settings, BookOpen } from "lucide-react";
+import { MessageSquare, Code, Book, Settings, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export type TabId = "chat" | "editor" | "knowledge";
@@ -15,9 +16,9 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const isPortrait = useMediaQuery("(orientation: portrait)");
 
   const tabs: { id: TabId; icon: React.ReactNode; label: string }[] = [
-    { id: "chat", icon: <MessageSquare className="h-5 w-5" />, label: "Chat" },
-    { id: "editor", icon: <Code className="h-5 w-5" />, label: "python脚本" },
-    { id: "knowledge", icon: <Database className="h-5 w-5" />, label: "知识库" },
+    { id: "chat", icon: <MessageSquare className="size-5" />, label: "Chat" },
+    { id: "editor", icon: <Code className="size-5" />, label: "Python" },
+    { id: "knowledge", icon: <BookOpen className="size-5" />, label: "知识库" },
   ];
 
   return (
@@ -39,23 +40,29 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       <div
         className={cn(
           "flex flex-1 gap-2",
-          isPortrait ? "flex-row w-full items-center" : "flex-col w-full p-0 px-1 pt-0 pb-2 pl-1"
+          isPortrait ? "flex-row w-full items-center" : "flex-col w-full p-0 px-0 pt-0 pb-2 pl-1"
         )}
       >
         {tabs.map((tab) => (
-          <Button
-            key={tab.id}
-            variant={activeTab === tab.id ? "default" : "ghost"}
-            size="icon"
-            className={cn(
-              "h-8 w-8 rounded-md",
-              activeTab === tab.id ? "bg-[rgb(31,154,236)] text-white hover:bg-[rgb(31,154,236)]" : "text-muted-foreground hover:hover:bg-gray-200"
-            )}
-            onClick={() => onTabChange(tab.id)}
-            title={tab.label}
-          >
-            {tab.icon}
-          </Button>
+          <Tooltip key={tab.id}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "h-8 w-8 flex-col p-1 gap-0.5 rounded-none",
+                  activeTab === tab.id
+                    ? "text-[rgb(31,154,236)] font-bold bg-transparent hover:bg-transparent hover:text-[rgb(31,154,236)] "
+                    : "hover:bg-gray-200 ]"
+                )}
+                onClick={() => onTabChange(tab.id)}
+              >
+                {tab.icon}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side={isPortrait ? "bottom" : "right"}>
+              <p>{tab.label}</p>
+            </TooltipContent>
+          </Tooltip>
         ))}
       </div>
 
