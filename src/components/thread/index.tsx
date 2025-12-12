@@ -350,11 +350,12 @@ export function Thread() {
           }
         >
           {!chatStarted && (
-            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
+            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 px-2 pt-2 pb-2 pl-2">
               <div>
                 {(!chatHistoryOpen || !isLargeScreen) && (
                   <Button
-                    className="hover:bg-gray-100"
+                    size="icon"
+                    className={"hover:bg-gray-200 w-8 h-8 rounded-md"}
                     variant="ghost"
                     onClick={() => setChatHistoryOpen((p) => !p)}
                   >
@@ -378,7 +379,8 @@ export function Thread() {
                 <div className="absolute left-0 z-10">
                   {(!chatHistoryOpen || !isLargeScreen) && (
                     <Button
-                      className="hover:bg-gray-100"
+                      size="icon"
+                      className={"hover:bg-gray-200 w-8 h-8 rounded-md"}
                       variant="ghost"
                       onClick={() => setChatHistoryOpen((p) => !p)}
                     >

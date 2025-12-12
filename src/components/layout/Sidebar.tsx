@@ -2,6 +2,7 @@ import React from "react";
 import { MessageSquare, Code, Database, Settings, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export type TabId = "chat" | "editor" | "knowledge";
 
@@ -11,6 +12,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+  const isPortrait = useMediaQuery("(orientation: portrait)");
+
   const tabs: { id: TabId; icon: React.ReactNode; label: string }[] = [
     { id: "chat", icon: <MessageSquare className="h-5 w-5" />, label: "Chat" },
     { id: "editor", icon: <Code className="h-5 w-5" />, label: "python脚本" },
@@ -18,7 +21,14 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   ];
 
   return (
-    <div className="flex h-screen w-[40px] flex-col items-center border-r bg-muted/40 py-2.5">
+    <div
+      className={cn(
+        "flex bg-muted/40 items-center",
+        isPortrait
+          ? "h-[41px] w-full flex-row border-b px-2"
+          : "h-screen w-[41px] flex-col border-r pt-2 pb-2.5"
+      )}
+    >
       {/* <div className="mb-4"> */}
         {/* Logo or Top Icon placeholder */}
         {/* <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
@@ -26,7 +36,12 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </div> */}
       {/* </div> */}
       
-      <div className="flex flex-1 flex-col gap-2 w-full px-1">
+      <div
+        className={cn(
+          "flex flex-1 gap-2",
+          isPortrait ? "flex-row w-full items-center" : "flex-col w-full p-0 px-1 pt-0 pb-2 pl-1"
+        )}
+      >
         {tabs.map((tab) => (
           <Button
             key={tab.id}
@@ -34,7 +49,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             size="icon"
             className={cn(
               "h-8 w-8 rounded-md",
-              activeTab === tab.id ? "bg-[rgb(31,154,236)] text-white hover:bg-[rgb(31,154,236)]" : "text-muted-foreground hover:bg-muted"
+              activeTab === tab.id ? "bg-[rgb(31,154,236)] text-white hover:bg-[rgb(31,154,236)]" : "text-muted-foreground hover:hover:bg-gray-200"
             )}
             onClick={() => onTabChange(tab.id)}
             title={tab.label}
