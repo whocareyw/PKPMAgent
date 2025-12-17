@@ -51,22 +51,29 @@ export function HumanMessage({
 
   const handleSubmitEdit = () => {
     setIsEditing(false);
-
+     // 1. 找到当前正在修改的消息在历史中的位置
+    // 注意：尽量使用 id 对比，比 index 更安全
+    const currentIndex = thread.messages.findIndex((m) => m.id === message.id);    
+    const previousHistory = thread.messages.slice(0, currentIndex);
+    //thread.branch
+    //const realmeta = thread.getMessagesMetadata(message, currentIndex);
+    //const realparentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
+    
     const newMessage: Message = { type: "human", content: value };
     thread.submit(
       { messages: [newMessage] },
       {
         checkpoint: parentCheckpoint,
-        streamMode: ['updates', 'messages'],
+        streamMode: ['messages'],
         streamSubgraphs: true,
         // streamResumable: true,
         optimisticValues: (prev) => {
-          const values = meta?.firstSeenState?.values;
-          if (!values) return prev;
+
+          if (!previousHistory) return prev;
 
           return {
-            ...values,
-            messages: [...(values.messages ?? []), newMessage],
+            ...prev,
+            messages: [...previousHistory, newMessage],
           };
         },
       },
