@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageSquare, Code, Book, Settings, BookOpen } from "lucide-react";
+import { MessageSquare, MonitorCheck, Code, Book, Settings, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -16,9 +16,9 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const isPortrait = useMediaQuery("(orientation: portrait)");
 
   const tabs: { id: TabId; icon: React.ReactNode; label: string }[] = [
-    { id: "chat", icon: <MessageSquare className="size-5" />, label: "Chat" },
-    { id: "editor", icon: <Code className="size-5" />, label: "Python" },
-    { id: "knowledge", icon: <BookOpen className="size-5" />, label: "知识库" },
+    { id: "chat", icon: <MonitorCheck className="size-5" />, label: "Agent" },
+    { id: "editor", icon: <Code className="size-5" />, label: "Python 执行" },
+    { id: "knowledge", icon: <BookOpen className="size-5" />, label: "知识问答" },
   ];
 
   return (
@@ -49,19 +49,24 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               <Button
                 variant="ghost"
                 className={cn(
-                  "h-8 w-8 flex-col p-1 gap-0.5 rounded-none",
+                  //h-8 w-8 flex-col p-1 gap-0.5 rounded-none
+                  "h-8 p-1 gap-0.5 ",
+                  isPortrait ? "w-full" : "w-8",
                   activeTab === tab.id
                     ? "text-[rgb(31,154,236)] font-bold bg-transparent hover:bg-transparent hover:text-[rgb(31,154,236)] "
                     : "hover:bg-gray-200 ]"
                 )}
                 onClick={() => onTabChange(tab.id)}
               >
-                {tab.icon}
+                {tab.icon} 
+                {isPortrait && <span className="text-[14px] font-bold ml-1">{tab.label}</span>}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side={isPortrait ? "bottom" : "right"}>
-              <p>{tab.label}</p>
-            </TooltipContent>
+            {!isPortrait && 
+              <TooltipContent side={isPortrait ? "bottom" : "right"}>
+                <p>{tab.label}</p>
+              </TooltipContent>
+            }
           </Tooltip>
         ))}
       </div>
