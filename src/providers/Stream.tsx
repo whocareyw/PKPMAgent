@@ -313,3 +313,28 @@ export const useStreamContext = (): StreamContextType => {
 };
 
 export default StreamContext;
+
+
+
+export async function getMessageState(stream:StreamContextType, message: Message)
+{
+    const meta = stream.getMessagesMetadata(message);
+    const threadId = meta?.firstSeenState?.checkpoint.thread_id
+    let state = threadId ? await stream.client?.threads.getState(threadId) : undefined;
+    while (state?.values) {
+      const values = state.values as any;
+      const messages = Array.isArray(values) ? values : values.messages;
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return undefined
+      }
+      const checkID = messages[messages.length - 1].id
+      if (checkID === message.id) {
+        break;
+      }
+      if (!state.parent_checkpoint) {
+        break;
+      }
+      state = await stream.client?.threads.getState(threadId!, state.parent_checkpoint);
+    }
+    return state
+}

@@ -1,4 +1,4 @@
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext, getMessageState } from "@/providers/Stream";
 import { Message } from "@langchain/langgraph-sdk";
 import { useState } from "react";
 import { getContentString } from "../utils";
@@ -49,21 +49,20 @@ export function HumanMessage({
   const [value, setValue] = useState("");
   const contentString = getContentString(message.content);
 
-  const handleSubmitEdit = () => {
+  const handleSubmitEdit = async () => {
     setIsEditing(false);
-     // 1. 找到当前正在修改的消息在历史中的位置
+    // 1. 找到当前正在修改的消息在历史中的位置    
+    
+    const state = await getMessageState(thread, message) 
     // 注意：尽量使用 id 对比，比 index 更安全
     const currentIndex = thread.messages.findIndex((m) => m.id === message.id);    
     const previousHistory = thread.messages.slice(0, currentIndex);
-    //thread.branch
-    //const realmeta = thread.getMessagesMetadata(message, currentIndex);
-    //const realparentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
-    
+
     const newMessage: Message = { type: "human", content: value };
     thread.submit(
       { messages: [newMessage] },
       {
-        checkpoint: parentCheckpoint,
+        checkpoint: state?.parent_checkpoint ?? parentCheckpoint,
         streamMode: ['messages'],
         streamSubgraphs: true,
         // streamResumable: true,
