@@ -324,30 +324,44 @@ export function ToolCalls({
 }
 
 export function ToolResult({ message }: { message: ToolMessage }) {
-
-  const isImage = typeof message.content === 'string' && 
-  (message.content.endsWith('.svg') || message.content.endsWith('.png') || 
-   message.content.endsWith('.jpg') || message.content.endsWith('.jpeg') || 
-   message.content.endsWith('.gif'));
-
-  const [isExpanded, setIsExpanded] = useState(isImage); // 直接用 isImage 初始化 
-  
+ 
   let parsedContent: any;
   let isJsonContent = false;
 
+  // Handle both string and complex message content
+  let textContent = "";
+  if (typeof message.content === "string") {
+    textContent = message.content;
+  } else if (Array.isArray(message.content)) {
+    textContent = message.content
+      .filter((c: any) => c.type === "text")
+      .map((c: any) => c.text)
+      .join("");
+  }
+
+  const isImage = typeof textContent === 'string' && 
+  (textContent.endsWith('.svg') || textContent.endsWith('.png') || 
+   textContent.endsWith('.jpg') || textContent.endsWith('.jpeg') || 
+   textContent.endsWith('.gif'));
+
+  const [isExpanded, setIsExpanded] = useState(isImage); // 直接用 isImage 初始化 
+
+
   try {
-    if (typeof message.content === "string") {
-      parsedContent = JSON.parse(message.content);
+    if (textContent) {
+      parsedContent = JSON.parse(textContent);
       isJsonContent = isComplexValue(parsedContent);
+    } else {
+      parsedContent = message.content;
     }
   } catch {
     // Content is not JSON, use as is
-    parsedContent = message.content;
+    parsedContent = textContent || message.content;
   }
 
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
-    : String(message.content);
+    : (textContent || String(message.content));
   const contentLines = contentStr.split("\n");
   const displayedContent = isExpanded ? contentStr : "";
 
