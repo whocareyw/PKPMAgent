@@ -1,5 +1,5 @@
 import { parsePartialJson } from "@langchain/core/output_parsers";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext, getMessageState } from "@/providers/Stream";
 import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { getContentString } from "../utils";
 import { BranchSwitcher, CommandBar } from "./shared";
@@ -150,11 +150,9 @@ const OptimizedToolCalls = memo(
 export function AssistantMessage({
   message,
   isLoading,
-  handleRegenerate,
 }: {
   message: Message | undefined;
   isLoading: boolean;
-  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
@@ -171,8 +169,20 @@ export function AssistantMessage({
   );
   const meta = message ? thread.getMessagesMetadata(message) : undefined;
   const threadInterrupt = thread.interrupt;
+  const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint // state?.parent_checkpoint  
 
-  const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
+  const handleRegenerate = async() => {
+
+    const state = message ? await getMessageState(thread, message) : undefined;    
+
+    thread.submit(undefined, {
+      checkpoint: state?.parent_checkpoint ?? parentCheckpoint,
+      streamMode: ['messages'],
+      streamSubgraphs: true,
+      // streamResumable: true,
+    });
+  };
+
   const anthropicStreamedToolCalls = Array.isArray(content)
     ? parseAnthropicStreamedToolCalls(content)
     : undefined;
@@ -294,7 +304,7 @@ export function AssistantMessage({
                 content={contentString}
                 isLoading={isLoading}
                 isAiMessage={true}
-                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+                handleRegenerate={handleRegenerate}
               />            
               {/* Token使用量显示 */}
               {message && message.type === "ai" && (

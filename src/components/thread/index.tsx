@@ -277,19 +277,6 @@ export function Thread() {
     setContentBlocks([]);
   };
 
-  const handleRegenerate = (
-    parentCheckpoint: Checkpoint | null | undefined,
-  ) => {
-    // Do this so the loading state is correct
-    prevMessageLength.current = prevMessageLength.current - 1;
-    setFirstTokenReceived(false);
-    stream.submit(undefined, {
-      checkpoint: parentCheckpoint,
-      streamMode: ['messages'],
-      streamSubgraphs: true,
-      // streamResumable: true,
-    });
-  };
 
   const chatStarted = !!threadId || !!messages.length;
   const hasNoAIOrToolMessages = !messages.find(
@@ -466,7 +453,6 @@ export function Thread() {
                           key={message.id || `${message.type}-${index}`}
                           message={message}
                           isLoading={isLoading}
-                          handleRegenerate={handleRegenerate}
                         />
                       ),
                     )}
@@ -477,7 +463,6 @@ export function Thread() {
                       key="interrupt-msg"
                       message={undefined}
                       isLoading={isLoading}
-                      handleRegenerate={handleRegenerate}
                     />
                   )}
                   {isLoading && !firstTokenReceived && (

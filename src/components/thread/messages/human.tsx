@@ -57,8 +57,7 @@ export function HumanMessage({
     // 注意：尽量使用 id 对比，比 index 更安全
     const currentIndex = thread.messages.findIndex((m) => m.id === message.id);    
     const previousHistory = thread.messages.slice(0, currentIndex);
-
-    const newMessage: Message = { type: "human", content: value };
+    const newMessage: Message = { type: "human", content: value ? value : message.content };
     thread.submit(
       { messages: [newMessage] },
       {
@@ -147,7 +146,8 @@ export function HumanMessage({
               }
               setIsEditing(c);
             }}
-            handleSubmitEdit={handleSubmitEdit}
+            handleSubmitEdit={handleSubmitEdit}            
+            handleRegenerate={handleSubmitEdit}
             isHumanMessage={true}
           />
         </div>
