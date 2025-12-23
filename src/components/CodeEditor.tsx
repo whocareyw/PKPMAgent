@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import {
   FilePlus,
+  ChevronDown,
+  Plus,
   ArrowUpDown,
   Search,
   PanelRightClose,
@@ -39,10 +41,11 @@ export function CodeEditor() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isRenaming, setIsRenaming] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [newFileName, setNewFileName] = useState<string>("");
   const [sidebarWidth, setSidebarWidth] = useState<number>(160); // Default 256px
   const [isResizing, setIsResizing] = useState<boolean>(false);
-  const [outputHeight, setOutputHeight] = useState<number>(160);
+  const [outputHeight, setOutputHeight] = useState<number>(200);
   const [isResizingOutput, setIsResizingOutput] = useState<boolean>(false);
 
   const isPortrait = useMediaQuery("(orientation: portrait)");
@@ -55,6 +58,10 @@ export function CodeEditor() {
       setIsSidebarVisible(false);
     }
   }, [isPortrait]);
+
+  useEffect(() => {
+    setNewFileName(currentFileName);
+  }, [currentFileName]);
 
   // Load scripts on mount
   useEffect(() => {
@@ -404,25 +411,86 @@ export function CodeEditor() {
             </button>
             
             {/* File Name Input */}
-            <div className="flex-1 w-45">
-                <input
-                    type="text"
-                    value={newFileName}
-                    onChange={(e) => setNewFileName(e.target.value)}
-                    onBlur={handleSave}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.currentTarget.blur(); // Trigger onBlur to save
-                        }
-                    }}
-                    className="w-full px-2 py-1 text-sm bg-transparent border border-transparent hover:border-border focus:border-ring focus:outline-none rounded-md transition-all font-medium"
-                    placeholder="Select or create a file"
-                    disabled={!currentFileName}
-                />
+            <div className="relative flex-1 w-45 group">
+                {isDropdownOpen && (
+                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                )}
+                <div className={`flex items-center w-full max-w-[350px] border rounded-md transition-all ${
+                    isDropdownOpen ? 'border-ring ring-1 ring-ring' : 'border-transparent hover:border-border focus-within:border-ring focus-within:ring-1 focus-within:ring-ring'
+                }`}>
+                    <input
+                        type="text"
+                        value={newFileName}
+                        onChange={(e) => setNewFileName(e.target.value)}
+                        onBlur={handleSave}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur(); // Trigger onBlur to save
+                                setIsDropdownOpen(false);
+                            }
+                        }}
+                        className="flex-1 px-2 py-1 text-sm bg-transparent border-none focus:outline-none rounded-l-md transition-all font-medium min-w-0"
+                        placeholder="请新建脚本 Add new script"
+                        disabled={!currentFileName}
+                    />
+                    <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="px-2 py-1 text-muted-foreground hover:text-foreground focus:outline-none"
+                        tabIndex={-1}
+                    >
+                        <ChevronDown className="h-5 w-5" />
+                    </button>                    
+                </div>                
+                
+                {isDropdownOpen && (
+                    <div className="absolute top-full left-0 w-full max-w-[350px] mt-1 bg-background border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto py-1">
+                        {files.length > 0 ? (
+                            files.map((file) => (
+                                <div
+                                    key={file}
+                                    onMouseDown={(e) => e.preventDefault()} // Prevent input blur
+                                    onClick={() => {
+                                        selectFile(file);
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className={`px-3 py-1.5 text-sm cursor-pointer flex items-center gap-2 ${
+                                        currentFileName === file ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
+                                    }`}
+                                >
+                                    <File className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="truncate">{file}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-3 py-2 text-xs text-muted-foreground text-center">
+                                No files
+                            </div>
+                        )}
+                     
+                    </div>
+                )}
             </div>
+            
+            {/* <div className="h-[1px] bg-border my-0" /> */}
+            <div className="flex items-center gap-2 ml-0">
+              <button
+                  // onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                      handleCreateNew();
+                      setIsDropdownOpen(false);
+                  }}
+                  className={`flex items-center gap-1 px-1.5 py-1.5 text-xs font-medium rounded-md transition-colors bg-[rgb(31,154,236)] text-white hover:bg-[rgba(0,118,253,1)]`}
+                  title="新建脚本"
+                  // className="px-3 py-1.5 text-sm cursor-pointer hover:bg-accent/50 flex items-center gap-2 text-blue-500"
+              >
+                  <Plus className="h-4 w-4" strokeWidth={3} />
+                  {/* <span>新建 py 文件...</span> */}              
+              </button>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 ml-2">
             <button
               onClick={handleRun}
               disabled={isRunning || !currentFileName}
@@ -463,8 +531,8 @@ export function CodeEditor() {
                 />
             ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm text-center gap-1">
-                    <div>请在侧边栏新建一个脚本开始编辑</div>
-                    <div>Select or create a script to start editing</div>
+                    <div>请新建一个 Python 脚本开始编辑</div>
+                    <div>Create a script to start editing</div>
                 </div>
             )}
          
