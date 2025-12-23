@@ -331,3 +331,159 @@ export async function getAutoToolsSelectionMode(): Promise<ApiResponse<{ selecti
 
 
 
+// 脚本执行相关后端功能
+
+export interface ScriptNameInput {
+  script_name: string;
+}
+
+export interface ScriptContentInput {
+  script_name: string;
+  content: string;
+}
+
+// 1. 获取 SCRIPT_PATH 目录下所有 .py 脚本的文件名
+export async function getAllScripts(): Promise<ApiResponse<{ scripts: string[] }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_all_scripts`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 2. 输入脚本名，返回脚本内容
+export async function getScriptContent(input: ScriptNameInput): Promise<ApiResponse<{ content: string }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_script_content`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 3. 输入脚本名字和内容，新建脚本（重名直接覆盖）
+export async function saveScript(input: ScriptContentInput): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/save_script`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 4. 删除脚本
+export async function deleteScript(input: ScriptNameInput): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/delete_script`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// 5. 输入脚本内容，直接执行
+export async function executeScript(input: ScriptContentInput): Promise<ApiResponse<any>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/execute_script`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+
