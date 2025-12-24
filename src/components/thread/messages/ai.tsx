@@ -199,15 +199,13 @@ export function AssistantMessage({
       (tc) => tc.args && Object.keys(tc.args).length > 0,
     );    
 
-  // let isTempToolCall: boolean = false
-  // if (!toolCallsHaveContents && message && 
-  //   "tool_call_chunks" in message &&
-  //   message.tool_call_chunks && 
-  //   Array.isArray(message.tool_call_chunks) && 
-  //   message.tool_call_chunks.length >= 1)
-  //   { 
-  //     isTempToolCall = true; 
-  //   }
+  const isTempToolCall = message && "tool_call_chunks" in message 
+    && message.tool_call_chunks &&  Array.isArray(message.tool_call_chunks) 
+    && message.tool_call_chunks.length > 0
+    && message.tool_call_chunks?.some(
+      (tc) => tc.args && Object.keys(tc.args).length > 0,
+    );  ;
+  
 
   // if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
   //   if( Array.isArray(message.tool_calls) && message.tool_calls?.length > 0 &&
@@ -264,16 +262,16 @@ export function AssistantMessage({
 
             {!hideToolCalls && (
               <>
-                {(hasToolCalls && toolCallsHaveContents && (
+                {(hasToolCalls && toolCallsHaveContents && isTempToolCall &&(
                   <OptimizedToolCalls toolCalls={message.tool_calls} isLoading={isLoading} />
                 )) ||
                   (hasAnthropicToolCalls && (
                     <OptimizedToolCalls toolCalls={anthropicStreamedToolCalls} isLoading={isLoading} />
                   )) 
-                  // ||
-                  // (hasToolCalls &&(
-                  //   <ToolCalls toolCalls={message.tool_calls} isTempToolCall={Boolean(isTempToolCall)} />
-                  // ))
+                  ||
+                  (hasToolCalls && toolCallsHaveContents && !isTempToolCall &&(
+                    <ToolCalls toolCalls={message.tool_calls} isTempToolCall={Boolean(isTempToolCall)} />
+                  ))
                   }
               </>
             )}
