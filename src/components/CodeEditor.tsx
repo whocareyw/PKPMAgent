@@ -20,13 +20,11 @@ import {
   saveScript,
   deleteScript,
   executeScript,
+  getScriptCompletion,
 } from "../lib/model-config-api";
 import { toast } from "sonner";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 
-interface ScriptFile {
-  name: string;
-}
 
 export function CodeEditor() {
   // State
@@ -158,15 +156,34 @@ export function CodeEditor() {
   };
 
   const handleCreateNew = async () => {
-    const baseName = "untitled";
+    const baseName = "Script";
     let name = `${baseName}.py`;
     let counter = 1;
     while (files.includes(name)) {
       name = `${baseName}_${counter}.py`;
       counter++;
     }
+    const content = `import APIPyInterface
+# 📦 一、可以执行 PKPM 的 API 脚本
+# 1.2 建模示例
+# model = APIPyInterface.Model()
+# model.InitialMainBuildingMem() # ⚠️必须有这句
+# help(model)                    # 对模型执行增删改查
+# model.SyncMainBuildingMem()    # ⚠️必须有这句
+# 1.3 获取结果示例
+# result = APIPyInterface.ResultData()
+# result.InitialResult()         # 读取结果数据
+# 1.4 CAD 绘图(基于pyautocad)
+# import pyautocad # 使用方法可以直接问任意大模型
 
-    const result = await saveScript({ script_name: name, content: "" });
+# 🛠️ 二、可以使用 PKPM 的 MCP 工具
+# from PKPMMCP import Interaction
+# print(Interaction.GetPKPMSelectedMember())
+
+# ⭐ 三、推荐用法
+# 在 Agent 中描述您的需求，完成任务后点击⭐收藏，这里会自动新建一个脚本。
+# Agent 生成的所有脚本均可以直接复制过来在这里运行`
+    const result = await saveScript({ script_name: name, content: content });
     if (result.data) {
       toast.success(`Created ${name}`);
       await fetchScripts();
@@ -247,9 +264,94 @@ export function CodeEditor() {
     handleSaveRef.current = handleSave;
   }, [handleSave]);
 
+  const completionProviderRef = useRef<any>(null);
+
+  // Cleanup completion provider on unmount
+  useEffect(() => {
+    return () => {
+      if (completionProviderRef.current) {
+        completionProviderRef.current.dispose();
+      }
+    };
+  }, []);
+  
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
         handleSaveRef.current();
+    });
+
+    // Dispose existing provider if any
+    if (completionProviderRef.current) {
+      completionProviderRef.current.dispose();
+    }
+
+    // Register custom completion provider
+    completionProviderRef.current = monaco.languages.registerCompletionItemProvider('python', {
+      triggerCharacters: ['.', ' '],
+      provideCompletionItems: async (model: any, position: any) => {
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+
+        // Check text before the cursor to see if it's a member access (dot)
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column
+        });
+
+        // Regex to check if the last non-whitespace character before cursor (excluding current word) is a dot
+        const trimmed = textUntilPosition.trim();
+        const isMemberAccess = trimmed.endsWith('.') || 
+                              (textUntilPosition.substring(0, textUntilPosition.length - word.word.length).trim().endsWith('.'));
+        const isImport = trimmed.endsWith('import');
+
+        if (!isMemberAccess && !isImport) {
+             return { suggestions: [] };
+        }
+        
+        // 动态代码补全          
+        let dynamicSuggestions: any[] = [];
+        try {
+            const script_content = model.getValue()
+            const result = await getScriptCompletion({
+                script_content: script_content,
+                line: position.lineNumber,
+                column: position.column - 1
+            });
+
+            if (result.data && result.data.suggestions) {
+                dynamicSuggestions = result.data.suggestions.map((item: any) => {
+                    // Map backend 'kind' string to Monaco CompletionItemKind
+                    let kind = monaco.languages.CompletionItemKind.Text;
+                    const k = item.kind ? item.kind.toLowerCase() : '';
+                    if (k === 'function' || k === 'method') kind = monaco.languages.CompletionItemKind.Function;
+                    else if (k === 'class') kind = monaco.languages.CompletionItemKind.Class;
+                    else if (k === 'module') kind = monaco.languages.CompletionItemKind.Module;
+                    else if (k === 'variable' || k === 'instance') kind = monaco.languages.CompletionItemKind.Variable;
+                    else if (k === 'keyword') kind = monaco.languages.CompletionItemKind.Keyword;
+
+                    return {
+                        label: item.label,
+                        kind: kind,
+                        insertText: item.label, // Simple insert for now
+                        detail: item.detail,
+                        range: range
+                    };
+                });
+            }
+        } catch (e) {
+            console.error("Failed to fetch completions", e);
+        }
+        
+        // python后端获取代码提示
+        return { suggestions: dynamicSuggestions };
+      },
     });
   };
 

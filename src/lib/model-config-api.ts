@@ -59,6 +59,49 @@ export async function getModelConfig(models: ModelConfig[]): Promise<ApiResponse
   }
 }
 
+// 6. 代码补全
+export interface CompletionInput {
+  script_content: string;
+  line: number;
+  column: number;
+}
+
+export interface CompletionItem {
+  label: string;
+  kind: string; // 'Function', 'Class', 'Variable', etc.
+  detail?: string;
+}
+
+export async function getScriptCompletion(input: CompletionInput): Promise<ApiResponse<{ suggestions: CompletionItem[] }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/get_script_completion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+       // Silently fail for completions usually, but here we return error
+       // The UI should handle it gracefully
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
 // 设置模型配置
 export async function setModelConfig(models: ModelConfig[]): Promise<ApiResponse<{ message: string }>> {
   try {
