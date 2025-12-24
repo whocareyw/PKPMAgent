@@ -424,7 +424,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                   {isImage ? (
                     <div className="flex justify-center">
                      {/* <PicViewer base64={String(message.artifact)} /> */}
-                    <LocalSvgViewer imagePath={String(message.content)} />                     
+                    <LocalSvgViewer imagePath={String(parsedContent)} />                     
                     </div>
                   ) : (
                     isJsonContent ? (

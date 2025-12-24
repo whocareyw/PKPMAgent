@@ -170,13 +170,14 @@ export function AssistantMessage({
   const meta = message ? thread.getMessagesMetadata(message) : undefined;
   const threadInterrupt = thread.interrupt;
   const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint // state?.parent_checkpoint  
+  const [threadId] = useQueryState("threadId");
 
   const handleRegenerate = async() => {
 
-    const state = message ? await getMessageState(thread, message) : undefined;    
+    const state = message ? await getMessageState(thread, message, threadId) : undefined;    
 
     thread.submit(undefined, {
-      checkpoint: state?.parent_checkpoint ?? parentCheckpoint,
+      checkpoint: state?.parent_checkpoint,
       streamMode: ['messages'],
       streamSubgraphs: true,
       // streamResumable: true,

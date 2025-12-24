@@ -316,10 +316,10 @@ export default StreamContext;
 
 
 
-export async function getMessageState(stream:StreamContextType, message: Message)
+export async function getMessageState(stream:StreamContextType, message: Message, fallbackThreadId?: string | null)
 {
-    const meta = stream.getMessagesMetadata(message);
-    const threadId = meta?.firstSeenState?.checkpoint.thread_id
+    //const meta = stream.getMessagesMetadata(message);
+    const threadId = fallbackThreadId//meta?.firstSeenState?.checkpoint.thread_id ?? fallbackThreadId
     let state = threadId ? await stream.client?.threads.getState(threadId) : undefined;
     while (state?.values) {
       const values = state.values as any;

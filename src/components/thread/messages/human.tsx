@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
+import { useQueryState } from "nuqs";
 
 function EditableContent({
   value,
@@ -48,20 +49,32 @@ export function HumanMessage({
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
   const contentString = getContentString(message.content);
+  const [threadId] = useQueryState("threadId");
 
   const handleSubmitEdit = async () => {
     setIsEditing(false);
     // 1. 找到当前正在修改的消息在历史中的位置    
     
-    const state = await getMessageState(thread, message) 
+    const state = await getMessageState(thread, message, threadId) 
     // 注意：尽量使用 id 对比，比 index 更安全
     const currentIndex = thread.messages.findIndex((m) => m.id === message.id);    
     const previousHistory = thread.messages.slice(0, currentIndex);
-    const newMessage: Message = { type: "human", content: value ? value : message.content };
+    //const newMessage: Message = { type: "human", content: value ? value : message.content };
+    const contentBlocks = Array.isArray(message.content) && message.content.length > 1 
+      ? message.content.slice(1) 
+      : [];
+    const newHumanMessage: Message = {
+      id:  message.id,
+      type: "human",
+      content: value ? [
+        ...(value.trim().length > 0 ? [{ type: "text", text: value }] : []),
+        ...contentBlocks,
+      ] as Message["content"] : message.content,
+    };
     thread.submit(
-      { messages: [newMessage] },
+      { messages: [newHumanMessage] },
       {
-        checkpoint: state?.parent_checkpoint ?? parentCheckpoint,
+        checkpoint: state?.parent_checkpoint,
         streamMode: ['messages'],
         streamSubgraphs: true,
         // streamResumable: true,
@@ -71,7 +84,7 @@ export function HumanMessage({
 
           return {
             ...prev,
-            messages: [...previousHistory, newMessage],
+            messages: [...previousHistory, newHumanMessage],
           };
         },
       },
