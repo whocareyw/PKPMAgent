@@ -156,6 +156,23 @@ export function AssistantMessage({
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
+
+  let argsString = ''
+  if (
+    (!argsString || argsString.length === 0) &&
+    message &&
+    "tool_calls" in message &&
+    (message as AIMessage).tool_calls?.length
+  ) {
+    const args = (message as AIMessage).tool_calls![0].args;
+    argsString = Object.values(args)
+      .map((v) => (typeof v === "string" ? v : JSON.stringify(v)))
+      .join("\n");
+  }
+  if (!argsString || argsString.length === 0){
+    argsString = contentString;
+  }
+
   const [hideToolCalls] = useQueryState(
     "hideToolCalls",
     parseAsBoolean.withDefault(false),
@@ -300,7 +317,7 @@ export function AssistantMessage({
                 isLoading={isLoading}
               />
               <CommandBar
-                content={contentString}
+                content={argsString}
                 isLoading={isLoading}
                 isAiMessage={true}
                 handleRegenerate={handleRegenerate}
