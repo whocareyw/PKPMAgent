@@ -10,12 +10,16 @@ import { ToolCalls, ToolResult } from "./tool-calls";
 import { TokenUsageSection } from "./TokenUsage";
 import { ThinkingSection } from "./Thinking";
 import { MessageContentComplex } from "@langchain/core/messages";
-import { Fragment, memo } from "react";
+import { Fragment, memo, useState } from "react";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { Star, Loader2 } from "lucide-react";
+import { TooltipIconButton } from "../tooltip-icon-button";
+import { getAllScripts, saveScript } from "@/lib/model-config-api";
+import { toast } from "sonner";
 
 
 function CustomComponent({
@@ -158,20 +162,16 @@ export function AssistantMessage({
   const contentString = getContentString(content);
 
   let argsString = ''
-  if (
-    (!argsString || argsString.length === 0) &&
-    message &&
-    "tool_calls" in message &&
-    (message as AIMessage).tool_calls?.length
-  ) {
+  if (message && "tool_calls" in message && (message as AIMessage).tool_calls?.length) {
     const args = (message as AIMessage).tool_calls![0].args;
-    argsString = Object.values(args)
-      .map((v) => (typeof v === "string" ? v : JSON.stringify(v)))
-      .join("\n");
+    if (args && "code" in args) {
+      const codeVal = args.code;
+      argsString = typeof codeVal === "string" ? codeVal : JSON.stringify(codeVal);
+    }
   }
-  if (!argsString || argsString.length === 0){
-    argsString = contentString;
-  }
+  // if (!argsString || argsString.length === 0){
+  //   argsString = contentString;
+  // }
 
   const [hideToolCalls] = useQueryState(
     "hideToolCalls",
@@ -188,6 +188,7 @@ export function AssistantMessage({
   const threadInterrupt = thread.interrupt;
   const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint // state?.parent_checkpoint  
   const [threadId] = useQueryState("threadId");
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleRegenerate = async() => {
 
@@ -199,6 +200,84 @@ export function AssistantMessage({
       streamSubgraphs: true,
       // streamResumable: true,
     });
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Find current message index
+      const currentIndex = thread.messages.findIndex(m => m.id === message?.id);
+      if (currentIndex === -1) {
+        toast.error("Current message not found in thread");
+        setIsSaving(false);
+        return;
+      }
+
+      // Find the last human message
+      let humanMessageIndex = -1;
+      for (let i = currentIndex - 1; i >= 0; i--) {
+        if (thread.messages[i].type === 'human') {
+          humanMessageIndex = i;
+          break;
+        }
+      }
+
+      const humanMessageContent = humanMessageIndex !== -1 
+        ? getContentString(thread.messages[humanMessageIndex].content)
+        : "Unknown Prompt";
+
+      // Collect scripts
+      const scripts: string[] = [];
+      const startIndex = humanMessageIndex !== -1 ? humanMessageIndex + 1 : 0;
+      
+      for (let i = startIndex; i <= currentIndex; i++) {
+        const msg = thread.messages[i] as AIMessage;
+        // Check for tool calls
+        if (msg.tool_calls && msg.tool_calls.length > 0) {
+             for (const tc of msg.tool_calls) {
+                 if (tc.args && tc.args.code) {
+                     const code = tc.args.code;
+                     scripts.push(typeof code === 'string' ? code : JSON.stringify(code));
+                 }
+             }
+        }
+      }
+
+      if (scripts.length === 0) {
+        toast.info("No scripts found to save.");
+        setIsSaving(false);
+        return;
+      }
+
+      const allScriptsContent = scripts.join("\n\n");
+      const finalContent = `"""\n${humanMessageContent}\n"""\n\n${allScriptsContent}`;
+
+      // Generate unique name
+      const { data: existingScriptsData } = await getAllScripts();
+      const existingNames = new Set(existingScriptsData?.scripts || []);
+      
+      let scriptName = `ShortCut_${1}.py`;
+      // Ensure uniqueness
+      let counter = 1;
+      while (existingNames.has(scriptName)) {
+         scriptName = `ShortCut_${counter}.py`;
+         counter++;
+      }
+
+      // Save
+      const saveRes = await saveScript({ script_name: scriptName, content: finalContent });
+      if (saveRes.error) {
+        toast.error(`保存失败: ${saveRes.error}`);
+      } else {
+        toast.success(`${scriptName} 已收藏到 Python 快捷指令`);
+      }
+
+    } catch (e) {
+      console.error(e);
+      toast.error("An error occurred while saving.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const anthropicStreamedToolCalls = Array.isArray(content)
@@ -221,7 +300,7 @@ export function AssistantMessage({
     && message.tool_call_chunks.length > 0
     && message.tool_call_chunks?.some(
       (tc) => tc.args && Object.keys(tc.args).length > 0,
-    );  ;
+    ); 
   
 
   // if (isTempToolCall && message && "tool_call_chunks" in message && "tool_calls" in message ) {
@@ -307,9 +386,22 @@ export function AssistantMessage({
             <div
               className={cn(
                 "mr-auto flex items-center gap-2 transition-opacity",
-                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+                "opacity-100 group-focus-within:opacity-100 group-hover:opacity-100",
               )}
             >             
+              {/* 收藏按钮 */}
+              {message && message.type === "ai" && (message as any).response_metadata?.finish_reason === "stop" && (
+                <TooltipIconButton
+                  tooltip="收藏到 Python 快捷指令 "
+                  variant="ghost"
+                  onClick={handleSave}
+                  disabled={isSaving || isLoading}
+                  className="w-auto h-auto px-1 gap-0.5"
+                  >
+                   {isSaving ? <Loader2 className="text-[rgb(31,154,236)] animate-spin size-4.5" /> : <Star className="text-[rgb(31,154,236)] size-4.5" strokeWidth={2.5} />}
+                   <span className="text-[rgb(31,154,236)] text-sm font-bold">快捷指令</span>
+                </TooltipIconButton>
+              )}
               <BranchSwitcher
                 branch={meta?.branch}
                 branchOptions={meta?.branchOptions}
@@ -325,7 +417,7 @@ export function AssistantMessage({
               {/* Token使用量显示 */}
               {message && message.type === "ai" && (
                 <TokenUsageSection message={message} />
-              )}
+              )}     
             </div>
           </>
         )}

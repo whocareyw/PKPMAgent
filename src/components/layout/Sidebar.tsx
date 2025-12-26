@@ -17,7 +17,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   const tabs: { id: TabId; icon: React.ReactNode; label: string }[] = [
     { id: "chat", icon: <MonitorCheck className="size-5" />, label: "Agent" },
-    { id: "editor", icon: <Code className="size-5" />, label: "Python 执行" },
+    { id: "editor", icon: <Code className="size-5" />, label: "Python 快捷指令" },
     { id: "knowledge", icon: <BookOpen className="size-5" />, label: "知识问答" },
   ];
 

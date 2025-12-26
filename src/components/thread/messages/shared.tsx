@@ -162,6 +162,7 @@ export function CommandBar({
     isEditing !== undefined &&
     !!setIsEditing &&
     !!handleSubmitEdit;
+  const showCopy = content && content.length > 0
 
   if (isHumanMessage && isEditing && !!setIsEditing && !!handleSubmitEdit) {
     return (
@@ -190,10 +191,12 @@ export function CommandBar({
 
   return (
     <div className="flex items-center gap-2">
-      <ContentCopyable
-        content={content}
-        disabled={isLoading}
-      />
+      {showCopy && (
+        <ContentCopyable
+          content={content}
+          disabled={isLoading}
+        />)
+      }
       {!!handleRegenerate && (
         <TooltipIconButton
           disabled={isLoading}
