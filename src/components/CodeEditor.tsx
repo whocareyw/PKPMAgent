@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Editor from "@monaco-editor/react";
+import Editor, { loader } from "@monaco-editor/react";
+
+// Configure Monaco Editor to use local resources for offline support
+loader.config({
+  paths: {
+    vs: "/monaco/vs",
+  },
+});
 import {
   FilePlus,
   ChevronDown,
