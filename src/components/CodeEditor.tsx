@@ -31,6 +31,7 @@ import {
 } from "../lib/model-config-api";
 import { toast } from "sonner";
 import { useMediaQuery } from "../hooks/useMediaQuery";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 
 export function CodeEditor() {
@@ -52,6 +53,8 @@ export function CodeEditor() {
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [outputHeight, setOutputHeight] = useState<number>(200);
   const [isResizingOutput, setIsResizingOutput] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [fileToDelete, setFileToDelete] = useState<string>("");
 
   const isPortrait = useMediaQuery("(orientation: portrait)");
 
@@ -204,16 +207,21 @@ export function CodeEditor() {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  const handleDelete = async (e: React.MouseEvent, fileName: string) => {
+  const handleDelete = (e: React.MouseEvent, fileName: string) => {
     e.stopPropagation();
-    if (!confirm(`确定删除 ${fileName}?`)) return;
+    setFileToDelete(fileName);
+    setIsDeleteDialogOpen(true);
+  };
 
-    const result = await deleteScript({ script_name: fileName });
+  const confirmDelete = async () => {
+    if (!fileToDelete) return;
+
+    const result = await deleteScript({ script_name: fileToDelete });
     if (result.data) {
-      toast.success(`Deleted ${fileName}`);
-      const newFiles = files.filter(f => f !== fileName);
+      toast.success(`Deleted ${fileToDelete}`);
+      const newFiles = files.filter(f => f !== fileToDelete);
       setFiles(newFiles);
-      if (currentFileName === fileName) {
+      if (currentFileName === fileToDelete) {
         setCurrentFileName("");
         setCode("");
         if (newFiles.length > 0) {
@@ -223,6 +231,8 @@ export function CodeEditor() {
     } else if (result.error) {
       toast.error(`Failed to delete script: ${result.error}`);
     }
+    setIsDeleteDialogOpen(false);
+    setFileToDelete("");
   };
 
   const handleSave = async (showToast: boolean | any = true) => {
@@ -692,6 +702,14 @@ export function CodeEditor() {
             </div>
         </div>
       </div>
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="删除脚本？"
+        description={`确定要删除 ${fileToDelete} 吗？`}
+        onConfirm={confirmDelete}
+        autoFocus="confirm"
+      />
     </div>
   );
 }

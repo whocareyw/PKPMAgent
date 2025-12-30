@@ -11,14 +11,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PanelRightOpen, PanelRightClose, Trash2 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -94,22 +87,15 @@ function ThreadList({
           </div>
         );
       })}
-      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <DialogContent className="max-w-[325px] sm:max-w-[325px]">
-          <DialogHeader className="text-left">
-            <DialogTitle>删除对话？</DialogTitle>
-            <DialogDescription>
-              确定要删除对话吗？此操作无法撤销。
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-row items-center justify-end gap-2 justify-end">
-            <Button className={"w-15 h-7 rounded-md"} 
-              variant="outline" onClick={() => setDeleteId(null)}>取消</Button>
-            <Button className={"w-15 h-7 rounded-md"}
-              variant="destructive" onClick={handleDelete} autoFocus>删除</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="删除对话？"
+        description="确定要删除对话吗？此操作无法撤销。"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+        autoFocus="confirm"
+      />
     </div>
   );
 }
