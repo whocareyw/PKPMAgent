@@ -234,12 +234,34 @@ export function AssistantMessage({
         const msg = thread.messages[i] as AIMessage;
         // Check for tool calls
         if (msg.tool_calls && msg.tool_calls.length > 0) {
-             for (const tc of msg.tool_calls) {
-                 if (tc.args && tc.args.code) {
-                     const code = tc.args.code;
-                     scripts.push(typeof code === 'string' ? code : JSON.stringify(code));
-                 }
-             }
+
+            // 本次调用有error，就不复制了
+            if(i+1 <= currentIndex){
+              const nextMsg = thread.messages[i+1];
+              if(nextMsg?.type === "tool" && Array.isArray(nextMsg.content)){
+                const hasError = nextMsg.content.some((c: any) => {
+                  try {
+                    if (c.type === 'text' && c.text) {
+                      const res = JSON.parse(c.text);
+                      return res && res.error;
+                    }
+                  } catch (e) {
+                    // ignore
+                  }
+                  return false;
+                });
+                if (hasError) {
+                  continue;
+                }
+              }
+            }
+           
+            for (const tc of msg.tool_calls) {
+                if (tc.args && tc.args.code) {
+                    const code = tc.args.code;
+                    scripts.push(typeof code === 'string' ? code : JSON.stringify(code));
+                }
+            }
         }
       }
 
