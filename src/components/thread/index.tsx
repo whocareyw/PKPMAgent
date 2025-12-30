@@ -396,8 +396,8 @@ export function Thread() {
                     height={48}
                   /> */}
                   {/* [rgb(31,154,236)] */}
-                  <span className="text-black text-lg font-semibold tracking-tight">
-                    新聊天
+                  <span className="text-black text-lg font-semibold">
+                    PKPM Agent
                   </span>
                   {/* <span className="text-xl font-semibold tracking-tight">
                     Agent
@@ -405,20 +405,20 @@ export function Thread() {
                 </motion.button>
                 <div className="flex items-center gap-4">
                 
-                <TooltipIconButton
-                  size="lg"
-                  className="p-4"
-                  tooltip="新聊天"
-                  variant="ghost"
-                  onClick={() => setThreadId(null)}
-                >
-                  <SquarePen className="size-5" />
-                </TooltipIconButton>             
-                 
-                <div className="flex items-center">
-                  {/* <OpenSurvey /> */}
-                  <OpenHelp/>
-                  {/* //开启新对话 */}
+                  <TooltipIconButton
+                    size="base"
+                    className={"hover:bg-gray-200 w-8 h-8 rounded-md"}
+                    tooltip="新聊天"
+                    variant="ghost"
+                    onClick={() => setThreadId(null)}
+                  >
+                    <SquarePen className="size-5" />
+                  </TooltipIconButton>             
+                  
+                  <div className="flex items-center">
+                    {/* <OpenSurvey /> */}
+                    <OpenHelp/>
+                    {/* //开启新对话 */}
                 </div>  
 
               </div>

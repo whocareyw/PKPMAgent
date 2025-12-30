@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useThreads } from "@/providers/Thread";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useEffect, type MouseEvent } from "react";
-
+import { useEffect, useCallback, useState, type MouseEvent } from "react";
+import { useStreamContext } from "@/providers/Stream";
 import { getContentString } from "../utils";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import {
@@ -11,6 +11,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PanelRightOpen, PanelRightClose, Trash2 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -18,13 +26,27 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 function ThreadList({
   threads,
   onThreadClick,
-  width 
+  width,
+  onDeleteThread,
 }: {
   threads: Thread[];
   onThreadClick?: (threadId: string) => void;
   width: number;
+  onDeleteThread: () => void;
 }) {
   const [threadId, setThreadId] = useQueryState("threadId");
+  const Stream = useStreamContext();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await Stream.client.threads.delete(deleteId);
+    if (deleteId === threadId) {
+      setThreadId(null);
+    }
+    onDeleteThread();
+    setDeleteId(null);
+  };
 
   return (
     <div className="flex h-full w-full flex-col items-start justify-start gap-2 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
@@ -62,7 +84,7 @@ function ThreadList({
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                // TODO: Implement delete logic
+                setDeleteId(t.thread_id);
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:bg-primary/20 hover:text-accent-foreground mr-0"
               title="Delete"
@@ -72,6 +94,22 @@ function ThreadList({
           </div>
         );
       })}
+      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <DialogContent className="max-w-[325px] sm:max-w-[325px]">
+          <DialogHeader className="text-left">
+            <DialogTitle>删除对话？</DialogTitle>
+            <DialogDescription>
+              确定要删除对话吗？此操作无法撤销。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row items-center justify-end gap-2 justify-end">
+            <Button className={"w-15 h-7 rounded-md"} 
+              variant="outline" onClick={() => setDeleteId(null)}>取消</Button>
+            <Button className={"w-15 h-7 rounded-md"}
+              variant="destructive" onClick={handleDelete} autoFocus>删除</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -99,14 +137,18 @@ export default function ThreadHistory({ width }: { width: number }) {
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
     useThreads();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  const refreshThreads = useCallback(() => {
     setThreadsLoading(true);
     getThreads()
       .then(setThreads)
       .catch(console.error)
       .finally(() => setThreadsLoading(false));
-  }, []);
+  }, [getThreads, setThreads, setThreadsLoading]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    refreshThreads();
+  }, [refreshThreads]);
 
   return (
     <>
@@ -127,14 +169,14 @@ export default function ThreadHistory({ width }: { width: number }) {
               <PanelRightClose className="size-5" />
             )}
           </Button>
-          <h1 className="text-xl font-semibold tracking-tight mr-1">
+          <h1 className="text-lg font-semibold mr-1">
             历史记录
           </h1>
         </div>
         {threadsLoading ? (
           <ThreadHistoryLoading />
         ) : (
-          <ThreadList threads={threads} width={width} />
+          <ThreadList threads={threads} width={width} onDeleteThread={refreshThreads} />
         )}
       </div>
       <div className="lg:hidden">
@@ -157,6 +199,7 @@ export default function ThreadHistory({ width }: { width: number }) {
               threads={threads}
               onThreadClick={() => setChatHistoryOpen((o) => !o)}
               width={width}
+              onDeleteThread={refreshThreads}
             />
           </SheetContent>
         </Sheet>
