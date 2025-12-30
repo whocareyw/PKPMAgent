@@ -406,7 +406,7 @@ export function Thread() {
                 <div className="flex items-center gap-4">
                 
                   <TooltipIconButton
-                    size="base"
+                    size="lg"
                     className={"hover:bg-gray-200 w-8 h-8 rounded-md"}
                     tooltip="新聊天"
                     variant="ghost"
