@@ -282,30 +282,30 @@ export function Thread() {
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
   );
-
+  const historyWide = 250;
   return (
     <div className="flex h-full w-full overflow-hidden">
       <div className="relative hidden lg:flex">
         <motion.div
           className="absolute z-20 h-full overflow-hidden border-r bg-white"
-          style={{ width: 300 }}
+          style={{ width: historyWide }}
           animate={
             isLargeScreen
-              ? { x: chatHistoryOpen ? 0 : -300 }
-              : { x: chatHistoryOpen ? 0 : -300 }
+              ? { x: chatHistoryOpen ? 0 : -historyWide }
+              : { x: chatHistoryOpen ? 0 : -historyWide }
           }
-          initial={{ x: -300 }}
+          initial={{ x: -historyWide }}
           transition={
             isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
+              ? { type: "spring", stiffness: historyWide, damping: 30 }
               : { duration: 0 }
           }
         >
           <div
             className="relative h-full"
-            style={{ width: 300 }}
+            style={{ width: historyWide }}
           >
-            <ThreadHistory />
+            <ThreadHistory width={historyWide} />
           </div>
         </motion.div>
       </div>
@@ -323,16 +323,16 @@ export function Thread() {
           )}
           layout={isLargeScreen}
           animate={{
-            marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,
+            marginLeft: chatHistoryOpen ? (isLargeScreen ? historyWide : 0) : 0,
             width: chatHistoryOpen
               ? isLargeScreen
-                ? "calc(100% - 300px)"
+                ? `calc(100% - ${historyWide}px)`
                 : "100%"
               : "100%",
           }}
           transition={
             isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
+              ? { type: "spring", stiffness: historyWide, damping: 30 }
               : { duration: 0 }
           }
         >
@@ -379,7 +379,6 @@ export function Thread() {
                     </Button>
                   )}
                 </div>          
-                
                 <motion.button
                   className="flex cursor-pointer items-center gap-2"
                   onClick={() => setThreadId(null)}
@@ -397,8 +396,8 @@ export function Thread() {
                     height={48}
                   /> */}
                   {/* [rgb(31,154,236)] */}
-                  <span className="text-black text-xl font-bold tracking-tight">
-                    PKPM Agent
+                  <span className="text-black text-lg font-semibold tracking-tight">
+                    新聊天
                   </span>
                   {/* <span className="text-xl font-semibold tracking-tight">
                     Agent
@@ -409,11 +408,11 @@ export function Thread() {
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
-                  tooltip="Start New Chat"
+                  tooltip="新聊天"
                   variant="ghost"
                   onClick={() => setThreadId(null)}
                 >
-                  <SquarePen className="size-6" />
+                  <SquarePen className="size-5" />
                 </TooltipIconButton>             
                  
                 <div className="flex items-center">

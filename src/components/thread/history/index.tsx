@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useThreads } from "@/providers/Thread";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useEffect } from "react";
+import { useEffect, type MouseEvent } from "react";
 
 import { getContentString } from "../utils";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -12,15 +12,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PanelRightOpen, PanelRightClose } from "lucide-react";
+import { PanelRightOpen, PanelRightClose, Trash2 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 function ThreadList({
   threads,
   onThreadClick,
+  width 
 }: {
   threads: Thread[];
   onThreadClick?: (threadId: string) => void;
+  width: number;
 }) {
   const [threadId, setThreadId] = useQueryState("threadId");
 
@@ -41,12 +43,13 @@ function ThreadList({
         return (
           <div
             key={t.thread_id}
-            className="w-full px-1"
+            className="group relative w-full px-1"
           >
             <Button
               variant="ghost"
-              className="w-[280px] items-start justify-start text-left font-normal"
-              onClick={(e) => {
+              className="items-start justify-start text-left font-normal pr-8"
+              style={{ width: `${width - 10}px` }}
+              onClick={(e: MouseEvent<HTMLButtonElement>)  => {
                 e.preventDefault();
                 onThreadClick?.(t.thread_id);
                 if (t.thread_id === threadId) return;
@@ -55,6 +58,17 @@ function ThreadList({
             >
               <p className="truncate text-ellipsis">{itemText}</p>
             </Button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                // TODO: Implement delete logic
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:bg-primary/20 hover:text-accent-foreground mr-0"
+              title="Delete"
+            >
+              <Trash2 className="h-4.5 w-4.5" />
+            </button>
           </div>
         );
       })}
@@ -75,7 +89,7 @@ function ThreadHistoryLoading() {
   );
 }
 
-export default function ThreadHistory() {
+export default function ThreadHistory({ width }: { width: number }) {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
@@ -96,7 +110,10 @@ export default function ThreadHistory() {
 
   return (
     <>
-      <div className="shadow-inner-right hidden h-screen w-[300px] shrink-0 flex-col items-start justify-start gap-6 border-r-[1px] border-slate-300 lg:flex">
+      <div 
+        className="shadow-inner-right hidden h-screen shrink-0 flex-col items-start justify-start gap-6 border-r-[1px] border-slate-300 lg:flex"
+        style={{ width }}
+      >
         <div className="flex w-full items-center justify-between p-2">
           <Button
             size="icon"
@@ -110,14 +127,14 @@ export default function ThreadHistory() {
               <PanelRightClose className="size-5" />
             )}
           </Button>
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="text-xl font-semibold tracking-tight mr-1">
             历史记录
           </h1>
         </div>
         {threadsLoading ? (
           <ThreadHistoryLoading />
         ) : (
-          <ThreadList threads={threads} />
+          <ThreadList threads={threads} width={width} />
         )}
       </div>
       <div className="lg:hidden">
@@ -131,13 +148,15 @@ export default function ThreadHistory() {
           <SheetContent
             side="left"
             className="flex lg:hidden"
+            style={{ width }}
           >
             <SheetHeader>
-              <SheetTitle>History</SheetTitle>
+              <SheetTitle>历史记录</SheetTitle>
             </SheetHeader>
             <ThreadList
               threads={threads}
               onThreadClick={() => setChatHistoryOpen((o) => !o)}
+              width={width}
             />
           </SheetContent>
         </Sheet>

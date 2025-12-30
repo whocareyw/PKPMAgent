@@ -16,7 +16,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Play,
-  File,
+  FileCode,
   Trash2,
   X,
   Loader2
@@ -476,8 +476,8 @@ export function CodeEditor() {
                         : "hover:bg-accent hover:text-accent-foreground"
                     }`}
                 >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                    <File className="h-4 w-4 flex-shrink-0" />
+                    <div className="flex items-center gap-1 overflow-hidden">
+                    <FileCode className="h-3.5 w-3.5 flex-shrink-0" />
                     <span className="truncate">{file}</span>
                     </div>
                     <button
@@ -566,7 +566,7 @@ export function CodeEditor() {
                                         currentFileName === file ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                                     }`}
                                 >
-                                    <File className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <FileCode className="h-3.5 w-3.5 text-muted-foreground" />
                                     <span className="truncate">{file}</span>
                                 </div>
                             ))
