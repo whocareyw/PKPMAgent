@@ -29,3 +29,6 @@ dist-ssr
 .next/
 next-env.d.ts
 out/
+
+# Generated static assets
+public/monaco
