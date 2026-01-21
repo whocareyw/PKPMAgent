@@ -49,7 +49,7 @@ export function CodeEditor() {
   const [isRenaming, setIsRenaming] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [newFileName, setNewFileName] = useState<string>("");
-  const [sidebarWidth, setSidebarWidth] = useState<number>(160); // Default 256px
+  const [sidebarWidth, setSidebarWidth] = useState<number>(200); // Default 256px
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [outputHeight, setOutputHeight] = useState<number>(200);
   const [isResizingOutput, setIsResizingOutput] = useState<boolean>(false);
