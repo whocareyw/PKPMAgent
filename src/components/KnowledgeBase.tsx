@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { getCozeToken } from "./AccessToken";
 
 export function KnowledgeBase() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,7 @@ export function KnowledgeBase() {
 
     const initCoze = async () => {
       try {
+        const jwtToken = await getCozeToken();
         await loadCozeSDK();
         
         const CozeWebSDK = (window as any).CozeWebSDK;
@@ -55,9 +57,10 @@ export function KnowledgeBase() {
           },
           auth: {
             type: 'token',
-            token: 'sat_0WFIUZ5XLgEmFXp56HMqryICQP1TYEsyhjkWzbF5O8gS7rot9D8MNVJs96VlLRIH',
+            token: jwtToken.access_token,
             onRefreshToken: async () => {
-              return 'sat_0WFIUZ5XLgEmFXp56HMqryICQP1TYEsyhjkWzbF5O8gS7rot9D8MNVJs96VlLRIH';
+              const newToken = await getCozeToken();
+              return newToken.access_token;
             }
           },
           userInfo: {
