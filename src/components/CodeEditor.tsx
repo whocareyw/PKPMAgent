@@ -34,7 +34,11 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 
-export function CodeEditor() {
+interface CodeEditorProps {
+  isActive?: boolean;
+}
+
+export function CodeEditor({ isActive }: CodeEditorProps) {
   // State
   const [files, setFiles] = useState<string[]>([]);
   const [currentFileName, setCurrentFileName] = useState<string>("");
@@ -49,12 +53,17 @@ export function CodeEditor() {
   const [isRenaming, setIsRenaming] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [newFileName, setNewFileName] = useState<string>("");
-  const [sidebarWidth, setSidebarWidth] = useState<number>(160); // Default 256px
+  const [sidebarWidth, setSidebarWidth] = useState<number>(200); // Default 256px
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [outputHeight, setOutputHeight] = useState<number>(200);
   const [isResizingOutput, setIsResizingOutput] = useState<boolean>(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [fileToDelete, setFileToDelete] = useState<string>("");
+
+  const currentFileNameRef = useRef(currentFileName);
+  useEffect(() => {
+    currentFileNameRef.current = currentFileName;
+  }, [currentFileName]);
 
   const isPortrait = useMediaQuery("(orientation: portrait)");
 
@@ -137,13 +146,29 @@ export function CodeEditor() {
     if (result.data) {
       setFiles(result.data.scripts);
       // If no file selected and files exist, select the first one
-      if (!currentFileName && result.data.scripts.length > 0) {
+      if (!currentFileNameRef.current && result.data.scripts.length > 0) {
         selectFile(result.data.scripts[0]);
       }
     } else if (result.error) {
       toast.error(`Failed to load scripts: ${result.error}`);
     }
   };
+
+  useEffect(() => {
+    if (isActive) {
+      fetchScripts();
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchScripts();
+    };
+    window.addEventListener("refresh-scripts-list", handleRefresh);
+    return () => {
+      window.removeEventListener("refresh-scripts-list", handleRefresh);
+    };
+  }, []);
 
   const selectFile = async (fileName: string, shouldSave = true) => {
     // Auto-save current file before switching

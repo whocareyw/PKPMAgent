@@ -23,8 +23,12 @@ function MainLayout() {
         <div className={activeTab === "chat" ? "block h-full w-full" : "hidden"}>
              <Thread />
         </div>
-        {activeTab === "editor" && <CodeEditor />}
-        {activeTab === "knowledge" && <KnowledgeBase />}
+        <div className={activeTab === "editor" ? "block h-full w-full" : "hidden"}>
+          <CodeEditor isActive={activeTab === "editor"} />
+        </div>
+        <div className={activeTab === "knowledge" ? "block h-full w-full" : "hidden"}>
+          <KnowledgeBase />
+        </div>
       </main>
     </div>
   );
