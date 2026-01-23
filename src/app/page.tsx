@@ -24,7 +24,7 @@ function MainLayout() {
              <Thread />
         </div>
         <div className={activeTab === "editor" ? "block h-full w-full" : "hidden"}>
-          <CodeEditor />
+          <CodeEditor isActive={activeTab === "editor"} />
         </div>
         <div className={activeTab === "knowledge" ? "block h-full w-full" : "hidden"}>
           <KnowledgeBase />
