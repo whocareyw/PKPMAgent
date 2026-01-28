@@ -38,6 +38,7 @@ export function KnowledgeBase() {
           ui: {
             base: {
                 layout: 'pc',
+                lang: 'zh-CN',
             },
             header: {
                 isNeedClose: false,
