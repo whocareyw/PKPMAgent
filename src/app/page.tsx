@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import React, { useState } from "react";
 import { Sidebar, TabId } from "@/components/layout/Sidebar";
 import { CodeEditor } from "@/components/CodeEditor";
-import { KnowledgeBase } from "@/components/KnowledgeBase";
+import { KnowledgeBase } from "@/components/KnowledgeBaseIframe";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
