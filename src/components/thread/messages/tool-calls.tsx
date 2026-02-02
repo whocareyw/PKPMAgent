@@ -1,5 +1,6 @@
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useEffect, useState } from "react";
+import { localImageToBase64 } from "@/lib/model-config-api";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Copy, CopyCheck } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
@@ -106,15 +107,39 @@ function useImageCopy() {
 }
 
 
-export default function PicViewer({ base64 }: { base64: string }) {
+export default function PicViewer({ imagePath }: { imagePath: string }) {
   const { copied, copyImageToClipboard } = useImageCopy();
+  const [base64, setBase64] = useState<string>("");
+
+  useEffect(() => {
+    if (imagePath) {
+      localImageToBase64(imagePath).then((res) => {
+        if (res.data?.base64) {
+          setBase64(res.data.base64);
+        }
+      });
+    }
+  }, [imagePath]);
 
   return base64 ? (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      <img
-        src={base64}
-        style={{ maxWidth: '100%', height: 'auto' }}
-      />
+      <Zoom>
+        <img
+          src={base64}
+          alt="Local Image"
+          style={{ maxWidth: '100%', height: 'auto' }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.parentElement!.style.display = 'none';
+            // Find parent div and show error message if exists, or just hide
+            const container = target.closest('div');
+            if (container) {
+               const errorMsg = container.querySelector('p');
+               if (errorMsg) errorMsg.style.display = 'block';
+            }
+          }}
+        />
+      </Zoom>
       <button
         onClick={() => copyImageToClipboard(base64, true)}
         style={{
@@ -423,8 +448,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                 >
                   {isImage ? (
                     <div className="flex justify-center">
-                     {/* <PicViewer base64={String(message.artifact)} /> */}
-                    <LocalSvgViewer imagePath={String(parsedContent)} />                     
+                     <PicViewer imagePath={String(parsedContent)} />
+                    {/* <LocalSvgViewer imagePath={String(parsedContent)} />  */}
                     </div>
                   ) : (
                     isJsonContent ? (

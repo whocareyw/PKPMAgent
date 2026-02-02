@@ -530,3 +530,30 @@ export async function executeScript(input: ScriptContentInput): Promise<ApiRespo
 }
 
 
+// 本地文件转base64
+export async function localImageToBase64(imagePath: string): Promise<ApiResponse<{ base64: string }>> {
+  try {
+    const response = await fetch(`${getBaseUrl()}/local_image_to_base64?imagePath=${encodeURIComponent(imagePath)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        error: errorData.error || `HTTP ${response.status}`,
+        details: errorData.details
+      };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return {
+      error: 'Network error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
