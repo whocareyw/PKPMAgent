@@ -1,12 +1,12 @@
 import { SignJWT, importPKCS8 } from 'jose';
 import { v4 as uuidv4 } from 'uuid';
-
-const baseURL = 'https://api.coze.cn';
+//基本信息
+const baseURL = 'https://api.coze.cn';                      
 const appId = '1186381766059';
 const keyid = 'hs6iFi6ZLo6fSqIcjsEoakh73gIGXxldmvAE-2K_F0Y';
 const aud = 'api.coze.cn';
 
-// Hardcoded private key (INSECURE - but requested for static build)
+// 私人密钥，用于私钥签署 JWT，并获取 Oauth Access Token
 const privateKeyPEM = `-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCc7v3JMbOHvNgn
 xst0Fg2viAMcy9q1YF5Sxi4fZkHDBWlt0XgYzk6bb6wDqiJCzkTocyY6P0IcIwPc
@@ -35,12 +35,12 @@ oR6CmqVCR4gcUW9AFXh/Hr6XooV+L/9s52pUR2QAy9ftLNwVe/8bb9/X1sBTlKu/
 B+2LDRi2yuOOkaYWYTn7ZwPqs5UBE81kpCu+TNGef8CgqQPoTHuc/HrxaBBOgAvg
 C6lNplccaABCODxwaqpA55x2
 -----END PRIVATE KEY-----`;
-
+//存储用户ID的MAP
 const tokenCache = new Map<string, any>();
 
 function getSessionId() {
-  if (typeof window === 'undefined') return 'server-side-session';
-  let sid = localStorage.getItem('coze_session_id');
+  if (typeof window === 'undefined') return 'server-side-session';      //判断是否为node环境而非浏览器环境
+  let sid = localStorage.getItem('coze_session_id');                    //在浏览器环境中，自带属性，通过localStorage获取用户ID
   if (!sid) {
     sid = uuidv4();
     localStorage.setItem('coze_session_id', sid);
@@ -50,19 +50,16 @@ function getSessionId() {
 
 export async function getCozeToken() {
   const effectiveSessionId = getSessionId();
-
   const cachedToken = tokenCache.get(effectiveSessionId);
   if (cachedToken && cachedToken.expires_in * 1000 > Date.now() + 5000) {
     return cachedToken;
   }
-
   console.log(`refresh token for session: ${effectiveSessionId}`);
 
   try {
-    
     const privateKey = await importPKCS8(privateKeyPEM, 'RS256');
     const now = Math.floor(Date.now() / 1000);
-    
+    //生成JWT
     const jwt = await new SignJWT({
       iss: appId,
       aud: aud,
@@ -74,7 +71,7 @@ export async function getCozeToken() {
       .setProtectedHeader({ alg: 'RS256', typ: 'JWT', kid: keyid })
       .sign(privateKey);
 
-    
+    //发送POST请求获取Access Token
     const response = await fetch(`${baseURL}/api/permission/oauth2/token`, {
       method: 'POST',
       headers: {
