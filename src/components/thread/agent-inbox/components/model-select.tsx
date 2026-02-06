@@ -31,15 +31,23 @@ export function ModelSelect({
   onModelChange,
   className = ""
 }: ModelSelectProps) {    
-  const [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([         
+  const [availableModels, setAvailableModels] = useState<ModelConfigEx[]>([    
+      { name: "Kimi",                           
+          id: "kimi-k2.5",
+          url: "https://api.moonshot.cn/v1"                           , 
+          api_key: '',
+          api_keys_url: "https://platform.moonshot.cn/console/api-keys" ,
+          ID_url: "https://platform.moonshot.cn/docs/introduction",
+          logo: MoonShotLogoSVG ,
+          ChineseName: "月之暗面(推荐)"},         
       { name: "ChatGLM", 
-          id: "glm-4.6",
+          id: "glm-4.7",
           url: "https://open.bigmodel.cn/api/paas/v4"                        , 
           api_key: '',
           api_keys_url: "https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys" , 
           ID_url: "https://open.bigmodel.cn/console/modelcenter/square",
           logo: ZhipuAILogoSVG ,
-          ChineseName: "智谱清言(推荐)"},  
+          ChineseName: "智谱清言"},  
       { name: "Qwen",                
           id: "qwen3-max",
           url: "https://dashscope.aliyuncs.com/compatible-mode/v1", 
@@ -47,17 +55,9 @@ export function ModelSelect({
           api_keys_url: "https://bailian.console.aliyun.com/?tab=model#/api-key",
           ID_url: "https://bailian.console.aliyun.com/?tab=doc#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2840914.html%239f8890ce29g5u",
           logo: TongyiLogoSVG ,
-          ChineseName: "通义千问"},     
-      { name: "Moonshot",                           
-          id: "kimi-k2-0905-preview",
-          url: "https://api.moonshot.cn/v1"                           , 
-          api_key: '',
-          api_keys_url: "https://platform.moonshot.cn/console/api-keys" ,
-          ID_url: "https://platform.moonshot.cn/docs/introduction",
-          logo: MoonShotLogoSVG ,
-          ChineseName: "月之暗面"},
+          ChineseName: "通义千问"}, 
       { name: "DeepSeek", 
-          id: "deepseek-chat",
+          id: "deepseek-reasoner",
           url: "https://api.deepseek.com"                        , 
           api_key: '',
           api_keys_url: "https://platform.deepseek.com/api_keys" , 
@@ -65,7 +65,7 @@ export function ModelSelect({
           logo: DeepSeekLogoSVG ,
           ChineseName: "深度求索"},
       { name: "SiliconFlow",                  
-          id: "zai-org/GLM-4.6",
+          id: "Pro/moonshotai/Kimi-K2.5",
           url: "https://api.siliconflow.cn/v1" , 
           api_key: '',
           api_keys_url: "https://cloud.siliconflow.cn/me/account/ak" ,
@@ -243,7 +243,7 @@ export function ModelSelect({
               </motion.button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>{selectedModel.id}</p>
+              <p>{selectedModel.id} </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
