@@ -25,6 +25,14 @@ import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
 
+// 应用启动时清除 LangGraph SDK 残留的 sessionStorage 数据
+// 防止崩溃后重启时自动执行中断的任务
+if (typeof window !== "undefined") {
+  Object.keys(sessionStorage)
+    .filter((key) => key.startsWith("lg:stream:"))
+    .forEach((key) => sessionStorage.removeItem(key));
+}
+
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
 const useTypedStream = useStream<
@@ -85,6 +93,7 @@ const StreamSession = ({
     assistantId,
     threadId: threadId ?? null,
     fetchStateHistory: true,
+    reconnectOnMount: false,
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
