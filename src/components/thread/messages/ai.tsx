@@ -265,8 +265,9 @@ export function AssistantMessage({
                         .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
                         .join(', ');
                     const comment = otherArgs ? `# ${tc.name}: ${otherArgs}` : `# ${tc.name}`;
-                    scripts.push(comment);
-                    scripts.push(typeof code === 'string' ? code : JSON.stringify(code));
+                    const codeStr = typeof code === 'string' ? code : JSON.stringify(code);
+                    // 把注释和 code 合并为一个字符串，中间用单个换行符
+                    scripts.push(`${comment}\n${codeStr}`);
                 }
             }
         }
