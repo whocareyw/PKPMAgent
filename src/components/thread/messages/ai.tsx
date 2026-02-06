@@ -259,6 +259,13 @@ export function AssistantMessage({
             for (const tc of msg.tool_calls) {
                 if (tc.args && tc.args.code) {
                     const code = tc.args.code;
+                    // 构建包含 name 和其他参数的注释
+                    const otherArgs = Object.entries(tc.args)
+                        .filter(([key]) => key !== 'code')
+                        .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
+                        .join(', ');
+                    const comment = otherArgs ? `# ${tc.name}: ${otherArgs}` : `# ${tc.name}`;
+                    scripts.push(comment);
                     scripts.push(typeof code === 'string' ? code : JSON.stringify(code));
                 }
             }
