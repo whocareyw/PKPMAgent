@@ -32,3 +32,18 @@ out/
 
 # Generated static assets
 public/monaco
+
+# Electron build output
+/dist-electron/
+/dist/
+*.exe
+*.dmg
+*.AppImage
+*.snap
+*.deb
+*.rpm
+*.msi
+
+# Electron
+/app.asar
+/release/
