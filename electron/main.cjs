@@ -12,11 +12,10 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,        // 安全：禁用 Node.js API
       contextIsolation: true,        // 安全：启用上下文隔离
     },
-    icon: path.join(__dirname, 'assets', 'icon.png'),
     show: false,
     titleBarStyle: 'default',
   });
